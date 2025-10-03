@@ -26,19 +26,11 @@ Os objetivos deste projeto (P1) são:
 - Persistir dados em diferentes modelos de dados (e.g., relacional, documento) e SGBDs: 
   - (i) SQL + Redis 
   - (ii) MongoDB+Redis
-- Devolver o ISBN de um livro pelo título do mesmo através de diferentes sistemas externos:
+- Procurar o ISBN de um livro pelo título do mesmo através de diferentes sistemas externos:
   - (i) ISBNdb
   - (ii) Google Books API
 - Gerar IDs de várias entidades em diferentes formatos de acordo com especificações variadas
 - As alternativas anteriores devem ser aplicadas em tempo de setup por meio de configuração
-
-### Melhorar os testes funcionais:
-
-- Testes de Caixa-opaca com SUT = classes
-- Testes de Caixa-transparente com SUT = classes de domínio
-- Testes de mutação com SUT = classes
-- Testes de Caixa-opaca funcional com SUT = controlador + serviço + {domínio, repositório, gateways}
-- Testes de Caixa-opaca funcional com SUT = sistema
 
 ### Documentar:
 
@@ -48,6 +40,21 @@ Os objetivos deste projeto (P1) são:
 - Táticas
 - Arquiteturas de referência
 - Padrões
+
+### Melhorar os testes funcionais:
+
+- Testes de Caixa-opaca com SUT = classes
+- Testes de Caixa-transparente com SUT = classes de domínio
+- Testes de mutação com SUT = classes
+- Testes de Caixa-opaca funcional com SUT = controlador + serviço + {domínio, repositório, gateways}
+- Testes de Caixa-opaca funcional com SUT = sistema
+
+## Acerca dos requisitos
+
+##### Quality attribute scenarios
+- [Scenario 1 - Persistência de Dados](QAS/PersistingData-QAS.md)
+- [Scenario 2 - Pesquisa de ISBNs através de APIs externas](QAS/SearchISBN-QAS.md)
+- [Scenario 3 - Geração de IDs em diferentes formatos](QAS/IdGeneration-QAS.md)
 
 ## System As Is
 

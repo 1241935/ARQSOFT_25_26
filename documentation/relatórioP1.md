@@ -48,3 +48,32 @@ Os objetivos deste projeto (P1) são:
 - Táticas
 - Arquiteturas de referência
 - Padrões
+
+## System As Is
+
+### Vista física
+![Vista física](Images/SAI_-_VF.svg)
+
+### Vista lógica
+#### Nivel 1
+![Vista lógica Nivel 1](Images/SAI_-_VL1.svg)
+
+#### Nivel 2
+![Vista lógica Nivel 2](Images/SAI_-_VL2.svg)
+
+#### Nivel 3
+![Vista lógica Nivel 3](Images/SAI_-_VL3.svg)
+
+### Vista de implementação
+
+#### Nivel 1
+![Vista de implementação Nivel 1](Images/SAI_-_VI1.svg)
+
+#### Nivel 2
+![Vista de implementação Nivel 2](Images/SAI_-_VI2.svg)
+
+#### Nivel 3
+![Vista de implementação Nivel 3](Images/SAI_-_VI3.svg)
+
+#### Nivel 4
+![Vista de implementação Nivel 4](Images/SAI_-_VI4.svg)

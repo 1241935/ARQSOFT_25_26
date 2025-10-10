@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.lendingmanagement.model;
+package pt.psoft.g1.psoftg1.lendingmanagement.model.SqlDataModels;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -14,13 +14,18 @@ import java.time.LocalDate;
  * <p>
  * It stores the year of the lending and a sequencial number, and a string combining these two.
  * @author  rmfranca*/
-public class LendingNumber implements Serializable {
+@Embeddable
+public class SqlLendingNumber implements Serializable {
 
     /**
      * Natural key of a {@code Lending}.
      * <p>
      * The string is constructed based on the values of {@code year} and {@code sequencial} (e.g.: 2024/23).
      */
+    @Column(name = "LENDING_NUMBER", length = 32)
+    @NotNull
+    @NotBlank
+    @Size(min = 6, max = 32)
     private String lendingNumber;
 
 
@@ -29,7 +34,7 @@ public class LendingNumber implements Serializable {
      * @param   year        Year component of the {@code LendingNumber}
      * @param   sequential  Sequential component of the {@code LendingNumber}
      * */
-    public LendingNumber(int year, int sequential) {
+    public SqlLendingNumber(int year, int sequential) {
         if(year < 1970 || LocalDate.now().getYear() < year)
             throw new IllegalArgumentException("Invalid year component");
         if(sequential < 0)
@@ -43,7 +48,7 @@ public class LendingNumber implements Serializable {
      * Initialization may fail if the format is not as expected.
      * @param lendingNumber String containing the lending number.
      * */
-    public LendingNumber(String lendingNumber){
+    public SqlLendingNumber(String lendingNumber){
         if(lendingNumber == null)
             throw new IllegalArgumentException("Lending number cannot be null");
 
@@ -66,14 +71,14 @@ public class LendingNumber implements Serializable {
      * The {@code year} value is automatically set with {@code LocalDate.now().getYear()}.
      * @param sequential Sequential component of the {@code LendingNumber}
      * */
-    public  LendingNumber(int sequential) {
+    public SqlLendingNumber(int sequential) {
         if(sequential < 0)
             throw new IllegalArgumentException("Sequencial component cannot be negative");
         this.lendingNumber = LocalDate.now().getYear() + "/" + sequential;
     }
 
     /**Protected empty constructor for ORM only.*/
-    public LendingNumber() {}
+    public SqlLendingNumber() {}
 
     public String toString() {
         return this.lendingNumber;

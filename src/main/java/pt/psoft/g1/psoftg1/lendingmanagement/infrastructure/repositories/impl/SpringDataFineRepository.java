@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl;
+/*package pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -17,4 +17,4 @@ public interface SpringDataFineRepository extends FineRepository, CrudRepository
             "WHERE l.lendingNumber.lendingNumber = :lendingNumber")
     Optional<Fine> findByLendingNumber(String lendingNumber);
 
-}
+}*/

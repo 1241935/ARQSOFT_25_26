@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.bookmanagement.model;
+package pt.psoft.g1.psoftg1.bookmanagement.model.SqlDataModels;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -7,15 +7,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
-
-public class Title {
+@Embeddable
+public class SqlTitle {
+    @Transient
     private final int TITLE_MAX_LENGTH = 128;
-
+    @NotBlank(message = "Title cannot be blank")
+    @Size(min = 1, max = TITLE_MAX_LENGTH)
+    @Column(name="TITLE", length = TITLE_MAX_LENGTH)
+    @Getter
     String title;
 
-    protected Title() {}
+    protected SqlTitle() {}
 
-    public Title(String title) {
+    public SqlTitle(String title) {
         setTitle(title);
     }
 

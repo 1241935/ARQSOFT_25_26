@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl;
+/*package pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -217,4 +217,4 @@ class LendingRepoCustomImpl implements LendingRepoCustom {
 
         return null;
     }*/
-}
+//}

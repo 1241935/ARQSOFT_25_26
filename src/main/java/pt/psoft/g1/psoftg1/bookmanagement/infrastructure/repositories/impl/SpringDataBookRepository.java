@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.bookmanagement.infrastructure.repositories.impl;
+/*package pt.psoft.g1.psoftg1.bookmanagement.infrastructure.repositories.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -118,4 +118,4 @@ class BookRepoCustomImpl implements BookRepoCustom {
 
         return q.getResultList();
     }
-}
+}*/

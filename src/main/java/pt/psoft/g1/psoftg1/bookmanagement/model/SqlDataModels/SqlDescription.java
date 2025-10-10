@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.bookmanagement.model;
+package pt.psoft.g1.psoftg1.bookmanagement.model.SqlDataModels;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
@@ -7,16 +7,20 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Size;
 import pt.psoft.g1.psoftg1.shared.model.StringUtilsCustom;
 
-public class Description {
+@Embeddable
+public class SqlDescription {
+    @Transient
     private final int DESC_MAX_LENGTH = 4096;
 
+    @Size(max = DESC_MAX_LENGTH)
+    @Column(length = DESC_MAX_LENGTH)
     String description;
 
-    public Description(String description) {
+    public SqlDescription(String description) {
         setDescription(description);
     }
 
-    protected Description() {}
+    protected SqlDescription() {}
 
     public void setDescription(@Nullable String description) {
         if(description == null || description.isBlank()) {

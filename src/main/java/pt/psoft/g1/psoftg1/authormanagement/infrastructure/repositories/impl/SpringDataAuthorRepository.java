@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl;
+/*package pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,5 +29,5 @@ public interface SpringDataAuthorRepository extends AuthorRepository, CrudReposi
             "WHERE b IN (SELECT b FROM Book b JOIN b.authors a WHERE a.authorNumber = :authorNumber) " +
             "AND coAuthor.authorNumber <> :authorNumber")
     List<Author> findCoAuthorsByAuthorNumber(Long authorNumber);
-}
+}*/
 

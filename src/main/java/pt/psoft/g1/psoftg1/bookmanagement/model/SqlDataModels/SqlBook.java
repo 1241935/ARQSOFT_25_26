@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.bookmanagement.model;
+package pt.psoft.g1.psoftg1.bookmanagement.model.SqlDataModels;
 
 
 import jakarta.persistence.*;
@@ -6,6 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.hibernate.StaleObjectStateException;
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
+import pt.psoft.g1.psoftg1.authormanagement.model.SqlDataModels.SqlAuthor;
+import pt.psoft.g1.psoftg1.bookmanagement.model.Description;
+import pt.psoft.g1.psoftg1.bookmanagement.model.Isbn;
+import pt.psoft.g1.psoftg1.bookmanagement.model.Title;
 import pt.psoft.g1.psoftg1.bookmanagement.services.UpdateBookRequest;
 import pt.psoft.g1.psoftg1.exceptions.ConflictException;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
@@ -15,26 +19,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Book extends EntityWithPhoto {
-
-    @Getter
+@Entity
+@Table(name = "Book", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_book_isbn", columnNames = {"ISBN"})
+})
+public class SqlBook extends EntityWithPhoto {
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     long pk;
 
+    @Version
     @Getter
     private Long version;
 
-    @Getter
+    @Embedded
     Isbn isbn;
 
     @Getter
+    @Embedded
+    @NotNull
     Title title;
 
     @Getter
+    @ManyToOne
+    @NotNull
     Genre genre;
 
     @Getter
-    private List<Author> authors = new ArrayList<>();
+    @ManyToMany
+    private List<SqlAuthor> authors = new ArrayList<>();
 
+    @Embedded
     Description description;
 
     private void setTitle(String title) {this.title = new Title(title);}
@@ -47,11 +62,11 @@ public class Book extends EntityWithPhoto {
 
     private void setGenre(Genre genre) {this.genre = genre; }
 
-    private void setAuthors(List<Author> authors) {this.authors = authors; }
+    private void setAuthors(List<SqlAuthor> authors) {this.authors = authors; }
 
     public String getDescription(){ return this.description.toString(); }
 
-    public Book(String isbn, String title, String description, Genre genre, List<Author> authors, String photoURI) {
+    public SqlBook(String isbn, String title, String description, Genre genre, List<SqlAuthor> authors, String photoURI) {
         setTitle(title);
         setIsbn(isbn);
         if(description != null)
@@ -68,7 +83,7 @@ public class Book extends EntityWithPhoto {
         setPhotoInternal(photoURI);
     }
 
-    protected Book() {
+    protected SqlBook() {
         // got ORM only
     }
 
@@ -87,7 +102,7 @@ public class Book extends EntityWithPhoto {
         String title = request.getTitle();
         String description = request.getDescription();
         Genre genre = request.getGenreObj();
-        List<Author> authors = request.getAuthorObjList();
+        //List<SqlAuthor> authors = request.getAuthorObjList();
         String photoURI = request.getPhotoURI();
         if(title != null) {
             setTitle(title);

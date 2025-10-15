@@ -85,3 +85,26 @@ Os objetivos deste projeto (P1) são:
 
 #### Nivel 4
 ![Vista de implementação Nivel 4](Images/SAI_-_VI4.svg)
+
+---
+
+## Alternativas de Arquitetura para uma aplicação de Gestão de Biblioteca
+
+Para a implementação da aplicação de Gestão de Biblioteca, foram consideradas diferentes alternativas arquiteturais, sendo o padrão MVC (Model-View-Controller) uma das principais opções avaliadas.
+
+### MVC
+O padrão MVC é uma arquitetura que separa a aplicação em três componentes principais: 
+- Model (responsável pelos dados e regras de negócio) 
+- View (interface com o usuário) 
+- Controller (intermediário que processa as entradas e coordena Model e View) 
+
+Esta separação permite maior organização do código, facilita a manutenção e possibilita a reutilização de componentes.
+
+#### Comunication
+![Comunication MVC](Images/Alternative_comunication.jpg)
+
+#### Simple Class Diagram
+![Class Diagram MVC](Images/Alternative_classDiagram.png)
+
+#### Package Diagram
+![Package Diagram MVC](Images/Alternative_packageDiagram.png)

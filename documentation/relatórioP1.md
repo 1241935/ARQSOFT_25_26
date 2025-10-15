@@ -1,7 +1,8 @@
-# Library Manager System Report- P1
+# Sistema de Gestão de Biblioteca - Relatório P1
 
 ## Introdução
-O presente documento descreve a situação atual e as perspetivas futuras de um Sistema de Gestão de Biblioteca, uma solução desenvolvida para atualizar e tornar mais eficientes os processos internos da biblioteca. O objetivo central é proporcionar uma experiência mais ágil e satisfatória tanto para os colaboradores como para os utilizadores, potenciando a eficácia das operações por meio da digitalização.
+O presente documento descreve a situação atual e as perspetivas futuras de um Sistema de Gestão de Biblioteca, uma solução desenvolvida para atualizar e tornar mais eficientes os processos internos da biblioteca. O objetivo central é proporcionar uma experiência mais ágil tanto para os colaboradores como para os utilizadores, potenciando a eficácia das operações por meio da digitalização.
+
 ## Contexto
 No projeto anterior, foi desenvolvido um serviço backend orientado a REST para Gestão de Bibliotecas. Esta aplicação fornece endpoints REST para gerir:
 

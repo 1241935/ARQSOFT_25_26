@@ -2,6 +2,7 @@ package pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl.assemblers.SqlLendingAssembler;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.Lending;
@@ -13,11 +14,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Component
 @RequiredArgsConstructor
 public class SqlLendingRepositoryImpl implements LendingRepository {
 
-    private final SqlLendingRepository sqlLendingRepository;
+    private final SqlLendingJpaRepository sqlLendingRepository;
     private final SqlLendingAssembler sqlLendingAssembler;
 
     @Override
@@ -72,5 +73,6 @@ public class SqlLendingRepositoryImpl implements LendingRepository {
     }
 }
 
-interface SqlLendingRepository extends JpaRepository<SqlLending, Integer> {
+@Repository
+interface SqlLendingJpaRepository extends JpaRepository<SqlLending, Integer> {
 }

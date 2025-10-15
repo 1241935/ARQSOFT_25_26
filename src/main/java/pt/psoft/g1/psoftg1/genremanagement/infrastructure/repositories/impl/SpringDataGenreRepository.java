@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.genremanagement.infrastructure.repositories.impl;
+/*package pt.psoft.g1.psoftg1.genremanagement.infrastructure.repositories.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -195,4 +195,4 @@ class GenreRepoCustomImpl implements GenreRepoCustom {
 
         return lendingsPerMonth;
     }
-}
+}*/

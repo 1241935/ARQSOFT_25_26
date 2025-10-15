@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.readermanagement.infraestructure.repositories.impl;
+/*package pt.psoft.g1.psoftg1.readermanagement.infraestructure.repositories.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -128,4 +128,4 @@ class ReaderDetailsRepoCustomImpl implements ReaderDetailsRepoCustom {
         return q.getResultList();
     }
 }
-
+*/

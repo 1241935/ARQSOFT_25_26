@@ -22,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SqlBookRepositoryImpl implements BookRepository {
 
-    private final SqlBookRepository sqlBookRepository;
+    private final SqlBookJpaRepository sqlBookRepository;
     private final SqlBookAssembler bookJpaAssembler;
     private final EntityManager entityManager;
     private final SqlAuthorAssembler authorJpaAssembler;
@@ -74,5 +74,3 @@ public class SqlBookRepositoryImpl implements BookRepository {
         sqlBookRepository.delete(bookJpaAssembler.toEntity(book));
     }
 }
-
-interface SqlBookRepository extends JpaRepository<SqlBook, Long> {}

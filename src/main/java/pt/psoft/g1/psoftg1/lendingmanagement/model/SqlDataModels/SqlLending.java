@@ -9,6 +9,7 @@ import org.hibernate.StaleObjectStateException;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.model.SqlDataModels.SqlBook;
 import pt.psoft.g1.psoftg1.readermanagement.model.ReaderDetails;
+import pt.psoft.g1.psoftg1.readermanagement.model.SqlDataModels.SqlReaderDetails;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -65,7 +66,7 @@ public class SqlLending {
     @NotNull
     @Getter
     @ManyToOne(fetch=FetchType.EAGER, optional = false)
-    private ReaderDetails readerDetails;
+    private SqlReaderDetails readerDetails;
 
     /**
      * Date of this {@code Lending}'s creation.
@@ -131,7 +132,7 @@ public class SqlLending {
      * @param       seq sequential number, which should be obtained from the year's count on the database.
      * @throws      NullPointerException if any of the arguments is {@code null}
      * */
-    public SqlLending(SqlBook book, ReaderDetails readerDetails, int seq, int lendingDuration, int fineValuePerDayInCents){
+    public SqlLending(SqlBook book, SqlReaderDetails readerDetails, int seq, int lendingDuration, int fineValuePerDayInCents){
         try {
             this.book = Objects.requireNonNull(book);
             this.readerDetails = Objects.requireNonNull(readerDetails);
@@ -237,7 +238,7 @@ public class SqlLending {
 
     /**Factory method meant to be only used in bootstrapping.*/
     public static SqlLending newBootstrappingLending(SqlBook book,
-                                                  ReaderDetails readerDetails,
+                                                  SqlReaderDetails readerDetails,
                                                   int year,
                                                   int seq,
                                                   LocalDate startDate,

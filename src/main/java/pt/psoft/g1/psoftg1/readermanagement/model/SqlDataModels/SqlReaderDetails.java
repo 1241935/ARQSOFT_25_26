@@ -1,11 +1,13 @@
-package pt.psoft.g1.psoftg1.readermanagement.model;
+package pt.psoft.g1.psoftg1.readermanagement.model.SqlDataModels;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import pt.psoft.g1.psoftg1.exceptions.ConflictException;
-import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
+import pt.psoft.g1.psoftg1.genremanagement.model.SqlDataModels.SqlGenre;
+import pt.psoft.g1.psoftg1.readermanagement.model.BirthDate;
+import pt.psoft.g1.psoftg1.readermanagement.model.PhoneNumber;
+import pt.psoft.g1.psoftg1.readermanagement.model.ReaderNumber;
 import pt.psoft.g1.psoftg1.readermanagement.services.UpdateReaderRequest;
 import pt.psoft.g1.psoftg1.shared.model.EntityWithPhoto;
 import pt.psoft.g1.psoftg1.usermanagement.model.Reader;
@@ -13,42 +15,52 @@ import pt.psoft.g1.psoftg1.usermanagement.model.Reader;
 import java.nio.file.InvalidPathException;
 import java.util.List;
 
-
-public class ReaderDetails extends EntityWithPhoto {
-
+@Entity
+@Table(name = "READER_DETAILS")
+public class SqlReaderDetails extends EntityWithPhoto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long pk;
 
     @Getter
     @Setter
+    @OneToOne
     private Reader reader;
 
     private ReaderNumber readerNumber;
 
+    @Embedded
     @Getter
     private BirthDate birthDate;
 
+    @Embedded
     private PhoneNumber phoneNumber;
 
     @Setter
     @Getter
+    @Basic
     private boolean gdprConsent;
 
     @Setter
+    @Basic
     @Getter
     private boolean marketingConsent;
 
     @Setter
+    @Basic
     @Getter
     private boolean thirdPartySharingConsent;
 
+    @Version
     @Getter
     private Long version;
 
     @Getter
     @Setter
-    private List<Genre> interestList;
+    @ManyToMany
+    private List<SqlGenre> interestList;
 
-    public ReaderDetails(int readerNumber, Reader reader, String birthDate, String phoneNumber, boolean gdpr, boolean marketing, boolean thirdParty, String photoURI, List<Genre> interestList) {
+    public SqlReaderDetails(int readerNumber, Reader reader, String birthDate, String phoneNumber, boolean gdpr, boolean marketing, boolean thirdParty, String photoURI, List<SqlGenre> interestList) {
         if(reader == null || phoneNumber == null) {
             throw new IllegalArgumentException("Provided argument resolves to null object");
         }
@@ -88,7 +100,7 @@ public class ReaderDetails extends EntityWithPhoto {
         }
     }
 
-    public void applyPatch(final long currentVersion, final UpdateReaderRequest request, String photoURI, List<Genre> interestList) {
+    public void applyPatch(final long currentVersion, final UpdateReaderRequest request, String photoURI, List<SqlGenre> interestList) {
         if(currentVersion != this.version) {
             throw new ConflictException("Provided version does not match latest version of this object");
         }
@@ -154,7 +166,7 @@ public class ReaderDetails extends EntityWithPhoto {
 
     public String getPhoneNumber() { return this.phoneNumber.toString();}
 
-    protected ReaderDetails() {
+    protected SqlReaderDetails() {
         // for ORM only
     }
 }

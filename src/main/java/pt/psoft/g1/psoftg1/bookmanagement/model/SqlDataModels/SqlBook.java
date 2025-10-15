@@ -13,6 +13,7 @@ import pt.psoft.g1.psoftg1.bookmanagement.model.Title;
 import pt.psoft.g1.psoftg1.bookmanagement.services.UpdateBookRequest;
 import pt.psoft.g1.psoftg1.exceptions.ConflictException;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
+import pt.psoft.g1.psoftg1.genremanagement.model.SqlDataModels.SqlGenre;
 import pt.psoft.g1.psoftg1.shared.model.EntityWithPhoto;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "Book", uniqueConstraints = {
+@Table(name = "SqlBook", uniqueConstraints = {
         @UniqueConstraint(name = "uc_book_isbn", columnNames = {"ISBN"})
 })
 public class SqlBook extends EntityWithPhoto {
@@ -33,17 +34,17 @@ public class SqlBook extends EntityWithPhoto {
     private Long version;
 
     @Embedded
-    Isbn isbn;
+    SqlIsbn isbn;
 
     @Getter
     @Embedded
     @NotNull
-    Title title;
+    SqlTitle title;
 
     @Getter
     @ManyToOne
     @NotNull
-    Genre genre;
+    SqlGenre genre;
 
     @Getter
     @ManyToMany
@@ -52,21 +53,21 @@ public class SqlBook extends EntityWithPhoto {
     @Embedded
     Description description;
 
-    private void setTitle(String title) {this.title = new Title(title);}
+    private void setTitle(String title) {this.title = new SqlTitle(title);}
 
     private void setIsbn(String isbn) {
-        this.isbn = new Isbn(isbn);
+        this.isbn = new SqlIsbn(isbn);
     }
 
     private void setDescription(String description) {this.description = new Description(description); }
 
-    private void setGenre(Genre genre) {this.genre = genre; }
+    private void setGenre(SqlGenre genre) {this.genre = genre; }
 
     private void setAuthors(List<SqlAuthor> authors) {this.authors = authors; }
 
     public String getDescription(){ return this.description.toString(); }
 
-    public SqlBook(String isbn, String title, String description, Genre genre, List<SqlAuthor> authors, String photoURI) {
+    public SqlBook(String isbn, String title, String description, SqlGenre genre, List<SqlAuthor> authors, String photoURI) {
         setTitle(title);
         setIsbn(isbn);
         if(description != null)
@@ -101,7 +102,7 @@ public class SqlBook extends EntityWithPhoto {
 
         String title = request.getTitle();
         String description = request.getDescription();
-        Genre genre = request.getGenreObj();
+        //SqlGenre genre = request.getGenreObj();
         //List<SqlAuthor> authors = request.getAuthorObjList();
         String photoURI = request.getPhotoURI();
         if(title != null) {

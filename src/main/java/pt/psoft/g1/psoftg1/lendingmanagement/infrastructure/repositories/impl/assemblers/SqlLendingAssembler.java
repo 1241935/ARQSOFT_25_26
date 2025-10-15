@@ -6,6 +6,7 @@ import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.model.SqlDataModels.SqlBook;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.Lending;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.SqlDataModels.SqlLending;
+import pt.psoft.g1.psoftg1.readermanagement.infraestructure.repositories.impl.assemblers.SqlReaderDetailsAssembler;
 import pt.psoft.g1.psoftg1.readermanagement.model.ReaderDetails;
 
 import java.time.LocalDate;
@@ -18,9 +19,11 @@ import java.util.stream.Collectors;
 public class SqlLendingAssembler {
 
     private final SqlBookAssembler bookAssembler;
+    private final SqlReaderDetailsAssembler readerDetailsAssembler;
 
-    public SqlLendingAssembler(SqlBookAssembler bookAssembler) {
+    public SqlLendingAssembler(SqlBookAssembler bookAssembler, SqlReaderDetailsAssembler readerDetailsAssembler) {
         this.bookAssembler = bookAssembler;
+        this.readerDetailsAssembler = readerDetailsAssembler;
     }
 
     /**
@@ -33,7 +36,7 @@ public class SqlLendingAssembler {
         int number = Integer.parseInt(parts[0]);
         int duration = (int) ChronoUnit.DAYS.between(lending.getLimitDate(), lending.getStartDate());
 
-        return new SqlLending(bookAssembler.toEntity(lending.getBook()),lending.getReaderDetails(),number,duration,lending.getFineValuePerDayInCents());
+        return new SqlLending(bookAssembler.toEntity(lending.getBook()),readerDetailsAssembler.toEntity(lending.getReaderDetails()),number,duration,lending.getFineValuePerDayInCents());
     }
 
     /**
@@ -46,7 +49,7 @@ public class SqlLendingAssembler {
         int number = Integer.parseInt(parts[0]);
         int duration = (int) ChronoUnit.DAYS.between(sqlLending.getLimitDate(), sqlLending.getStartDate());
 
-        return new Lending(bookAssembler.toDomain(sqlLending.getBook()),sqlLending.getReaderDetails(),number,duration,sqlLending.getFineValuePerDayInCents());
+        return new Lending(bookAssembler.toDomain(sqlLending.getBook()),readerDetailsAssembler.toDomain(sqlLending.getReaderDetails()),number,duration,sqlLending.getFineValuePerDayInCents());
     }
 
     public List<SqlLending> toEntityList(List<Lending> lendings) {

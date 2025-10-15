@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SqlFineRepositoryImpl implements FineRepository {
 
-    private  final SqlFineRepository sqlFineRepository;
+    private  final SqlFineJpaRepository sqlFineRepository;
     private final SqlFineAssembler sqlFineAssembler;
 
     @Override
@@ -35,7 +35,7 @@ public class SqlFineRepositoryImpl implements FineRepository {
     }
 }
 
-interface SqlFineRepository extends JpaRepository<SqlFine, Integer> {
+interface SqlFineJpaRepository extends JpaRepository<SqlFine, Integer> {
 
     @Query("SELECT f " +
             "FROM SqlFine f " +

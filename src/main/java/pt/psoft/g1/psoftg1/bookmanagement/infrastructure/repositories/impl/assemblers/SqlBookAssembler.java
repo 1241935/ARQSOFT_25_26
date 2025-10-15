@@ -6,7 +6,8 @@ import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.model.SqlDataModels.SqlAuthor;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.model.SqlDataModels.SqlBook;
-import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
+import pt.psoft.g1.psoftg1.genremanagement.infrastructure.repositories.impl.SqlGenreRepositoryImpl;
+import pt.psoft.g1.psoftg1.genremanagement.infrastructure.repositories.impl.assemblers.SqlGenreAssembler;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,9 +16,11 @@ import java.util.stream.Collectors;
 public class SqlBookAssembler {
 
     private final SqlAuthorAssembler authorAssembler;
+    private final SqlGenreAssembler genreAssembler;
 
-    public SqlBookAssembler(SqlAuthorAssembler authorAssembler) {
+    public SqlBookAssembler(SqlAuthorAssembler authorAssembler, SqlGenreAssembler genreAssembler, SqlGenreRepositoryImpl genreRepository) {
         this.authorAssembler = authorAssembler;
+        this.genreAssembler = genreAssembler;
     }
 
     // Converter do domínio para Sql (Book → SqlBook)
@@ -32,7 +35,7 @@ public class SqlBookAssembler {
                 book.getIsbn(),
                 book.getTitle().toString(),
                 book.getDescription(),
-                book.getGenre(),
+                genreAssembler.toEntity(book.getGenre()),
                 sqlAuthors,
                 ""
         );
@@ -50,7 +53,7 @@ public class SqlBookAssembler {
                 entity.getIsbn(),
                 entity.getTitle().toString(),
                 entity.getDescription(),
-                entity.getGenre(),
+                genreAssembler.toDomain(entity.getGenre()),
                 authors,
                 ""
         );

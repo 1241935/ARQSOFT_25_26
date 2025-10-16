@@ -1,5 +1,6 @@
 package pt.psoft.g1.psoftg1.bookmanagement.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +30,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @PropertySource({"classpath:config/library.properties"})
+@Slf4j
 public class BookServiceImpl implements BookService {
 
 	private final BookRepository bookRepository;
@@ -36,6 +38,7 @@ public class BookServiceImpl implements BookService {
 	private final AuthorRepository authorRepository;
 	private final PhotoRepository photoRepository;
 	private final ReaderRepository readerRepository;
+    private final LibraryApi libraryApi;
 
 	@Value("${suggestionsLimitPerGenre}")
 	private long suggestionsLimitPerGenre;
@@ -207,4 +210,25 @@ public class BookServiceImpl implements BookService {
 		}
 		return bookRepository.searchBooks(page, query);
 	}
+
+    public Optional<String> findIsbnFromExternalApi(String title) {
+        try {
+            log.debug("Searching ISBN for '{}' using provider: {}",
+                    title, libraryApi.getProviderName());
+
+            Optional<String> result = libraryApi.findIsbnByTitle(title);
+
+            if (result.isPresent()) {
+                log.info("Found ISBN {} for '{}' using {}",
+                        result.get(), title, libraryApi.getProviderName());
+            } else {
+                log.info("ISBN not found for '{}'", title);
+            }
+
+            return result;
+        } catch (Exception e) {
+            log.error("Error searching ISBN for '{}': {}", title, e.getMessage());
+            return Optional.empty();
+        }
+    }
 }

@@ -22,6 +22,7 @@ import java.util.Objects;
 public class Book extends EntityWithPhoto {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
+    @Getter
     long pk;
 
     @Version

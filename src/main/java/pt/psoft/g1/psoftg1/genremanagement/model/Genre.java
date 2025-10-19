@@ -11,6 +11,7 @@ public class Genre {
     private final int GENRE_MAX_LENGTH = 100;
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
+    @Getter
     long pk;
 
     @Size(min = 1, max = GENRE_MAX_LENGTH, message = "Genre name must be between 1 and 100 characters")

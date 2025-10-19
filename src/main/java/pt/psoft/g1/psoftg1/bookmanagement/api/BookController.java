@@ -48,7 +48,7 @@ public class BookController {
     @Operation(summary = "Register a new Book")
     @PutMapping(value = "/{isbn}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<BookView> create( CreateBookRequest resource, @PathVariable("isbn") String isbn) {
+    public ResponseEntity<BookView> create(@RequestBody CreateBookRequest resource, @PathVariable("isbn") String isbn) {
 
 
         //Guarantee that the client doesn't provide a link on the body, null = no photo or error

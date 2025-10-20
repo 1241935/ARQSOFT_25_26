@@ -12,12 +12,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.repositories.AuthorRepository;
+import pt.psoft.g1.psoftg1.bookmanagement.factories.BookFactory;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;
 import pt.psoft.g1.psoftg1.bookmanagement.services.LibraryApi;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
 import pt.psoft.g1.psoftg1.genremanagement.repositories.GenreRepository;
-import pt.psoft.g1.psoftg1.shared.model.Photo;
 import pt.psoft.g1.psoftg1.shared.services.FileStorageService;
 
 import java.nio.file.Path;
@@ -52,6 +52,9 @@ class BookControllerIntegrationTest {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private BookFactory bookFactory;
 
     @MockBean
     private LibraryApi libraryApi;
@@ -413,7 +416,7 @@ class BookControllerIntegrationTest {
     }
 
     private Book createTestBook(String isbn, String title) {
-        Book book = new Book(
+        Book book = bookFactory.create(
                 isbn,
                 title,
                 "Test description",

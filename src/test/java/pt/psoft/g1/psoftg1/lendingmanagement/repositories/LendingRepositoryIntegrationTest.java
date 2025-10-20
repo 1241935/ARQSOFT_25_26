@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.repositories.AuthorRepository;
+import pt.psoft.g1.psoftg1.bookmanagement.factories.BookFactory;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
@@ -43,6 +44,8 @@ public class LendingRepositoryIntegrationTest {
     private GenreRepository genreRepository;
     @Autowired
     private AuthorRepository authorRepository;
+    @Autowired
+    private BookFactory bookFactory;
 
     private Lending lending;
     private ReaderDetails readerDetails;
@@ -62,7 +65,7 @@ public class LendingRepositoryIntegrationTest {
         genreRepository.save(genre);
 
         List<Author> authors = List.of(author);
-        book = new Book("9782826012092",
+        book = bookFactory.create("9782826012092",
                 "O Inspetor Max",
                 "conhecido pastor-alemão que trabalha para a Judiciária, vai ser fundamental para resolver um importante caso de uma rede de malfeitores que quer colocar uma bomba num megaconcerto de uma ilustre cantora",
                 genre,

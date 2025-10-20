@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.web.multipart.MultipartFile;
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
+import pt.psoft.g1.psoftg1.bookmanagement.factories.BookFactory;
 import pt.psoft.g1.psoftg1.bookmanagement.model.*;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class BookServiceImpl implements BookService {
 	private final PhotoRepository photoRepository;
 	private final ReaderRepository readerRepository;
     private final LibraryApi libraryApi;
+    private final BookFactory bookFactory;
 
 	@Value("${suggestionsLimitPerGenre}")
 	private long suggestionsLimitPerGenre;
@@ -73,8 +75,8 @@ public class BookServiceImpl implements BookService {
 		final var genre = genreRepository.findByString(request.getGenre())
 				.orElseThrow(() -> new NotFoundException("Genre not found"));
 
-		Book newBook = new Book(isbn, request.getTitle(), request.getDescription(), genre, authors, photoURI);
 
+		Book newBook = bookFactory.create(isbn, request.getTitle(), request.getDescription(), genre, authors, photoURI);
         return bookRepository.save(newBook);
 	}
 

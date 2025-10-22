@@ -14,7 +14,7 @@ class BookTest {
     private final String validTitle = "Encantos de contar";
     private final Author validAuthor1 = new Author("João Alberto", "O João Alberto nasceu em Chaves e foi pedreiro a maior parte da sua vida.", null);
     private final Author validAuthor2 = new Author("Maria José", "A Maria José nasceu em Viseu e só come laranjas às segundas feiras.", null);
-    private final Genre validGenre = new Genre("Fantasia");
+    private final Genre validGenre = new Genre("1","Fantasia");
     private ArrayList<Author> authors = new ArrayList<>();
 
     @BeforeEach

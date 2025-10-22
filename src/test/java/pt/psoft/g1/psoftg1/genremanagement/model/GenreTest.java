@@ -9,12 +9,12 @@ class GenreTest {
 
     @Test
     void ensureGenreMustNotBeNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Genre(null));
+        assertThrows(IllegalArgumentException.class, () -> new Genre(null,null));
     }
 
     @Test
     void ensureGenreMustNotBeBlank() {
-        assertThrows(IllegalArgumentException.class, () -> new Genre(""));
+        assertThrows(IllegalArgumentException.class, () -> new Genre("123",""));
     }
 
 
@@ -23,7 +23,7 @@ class GenreTest {
      */
     @Test
     void ensureGenreMustNotBeOversize() {
-        assertThrows(IllegalArgumentException.class, () -> new Genre("\n" +
+        assertThrows(IllegalArgumentException.class, () -> new Genre("1","\n" +
                 "\n" +
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam venenatis semper nisl, eget condimentum felis tempus vitae. Morbi tempus turpis a felis luctus, ut feugiat tortor mattis. Duis gravida nunc sed augue ultricies tempor. Phasellus ultrices in dolor id viverra. Sed vitae odio ut est vestibulum lacinia sed sed neque. Mauris commodo, leo in tincidunt porta, justo mi commodo arcu, non ultricies ipsum dolor a mauris. Pellentesque convallis vulputate nisl, vel commodo felis ornare nec. Aliquam tristique diam dignissim hendrerit auctor. Mauris nec dolor hendrerit, dignissim urna non, pharetra quam. Sed diam est, convallis nec efficitur eu, sollicitudin ac nibh. In orci leo, dapibus ut eleifend et, suscipit sit amet felis. Integer lectus quam, tristique posuere vulputate sed, tristique eget sem.\n" +
                 "\n" +
@@ -44,7 +44,7 @@ class GenreTest {
 
     @Test
     void ensureGenreIsSet() {
-        final var genre = new Genre("Some genre");
+        final var genre = new Genre("123","Some genre");
         assertEquals("Some genre", genre.toString());
     }
 

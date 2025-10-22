@@ -12,6 +12,7 @@ import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.repositories.AuthorRepository;
 import pt.psoft.g1.psoftg1.bookmanagement.factories.BookFactory;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
+import pt.psoft.g1.psoftg1.genremanagement.factories.GenreFactory;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;
 import pt.psoft.g1.psoftg1.genremanagement.repositories.GenreRepository;
@@ -47,6 +48,7 @@ public class Bootstrapper implements CommandLineRunner {
     private final ReaderRepository readerRepository;
     private final PhotoRepository photoRepository;
     private final BookFactory bookFactory;
+    private final GenreFactory genreFactory;
 
     private final ForbiddenNameService forbiddenNameService;
 
@@ -132,23 +134,23 @@ public class Bootstrapper implements CommandLineRunner {
 
     private void createGenres() {
         if (genreRepository.findByString("Fantasia").isEmpty()) {
-            final Genre g1 = new Genre("Fantasia");
+            final Genre g1 = genreFactory.create("Fantasia");
             genreRepository.save(g1);
         }
         if (genreRepository.findByString("Informação").isEmpty()) {
-            final Genre g2 = new Genre("Informação");
+            final Genre g2 = genreFactory.create("Informação");
             genreRepository.save(g2);
         }
         if (genreRepository.findByString("Romance").isEmpty()) {
-            final Genre g3 = new Genre("Romance");
+            final Genre g3 = genreFactory.create("Romance");
             genreRepository.save(g3);
         }
         if (genreRepository.findByString("Infantil").isEmpty()) {
-            final Genre g4 = new Genre("Infantil");
+            final Genre g4 = genreFactory.create("Infantil");
             genreRepository.save(g4);
         }
         if (genreRepository.findByString("Thriller").isEmpty()) {
-            final Genre g5 = new Genre("Thriller");
+            final Genre g5 = genreFactory.create("Thriller");
             genreRepository.save(g5);
         }
     }

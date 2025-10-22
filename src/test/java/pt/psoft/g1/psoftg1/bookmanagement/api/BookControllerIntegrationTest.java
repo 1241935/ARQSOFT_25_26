@@ -16,6 +16,7 @@ import pt.psoft.g1.psoftg1.bookmanagement.factories.BookFactory;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;
 import pt.psoft.g1.psoftg1.bookmanagement.services.LibraryApi;
+import pt.psoft.g1.psoftg1.genremanagement.factories.GenreFactory;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
 import pt.psoft.g1.psoftg1.genremanagement.repositories.GenreRepository;
 import pt.psoft.g1.psoftg1.shared.services.FileStorageService;
@@ -55,6 +56,9 @@ class BookControllerIntegrationTest {
 
     @Autowired
     private BookFactory bookFactory;
+
+    @Autowired
+    private GenreFactory genreFactory;
 
     @MockBean
     private LibraryApi libraryApi;
@@ -406,7 +410,7 @@ class BookControllerIntegrationTest {
     // ===========================================
 
     private Genre createTestGenre(String genreName) {
-        Genre genre = new Genre(genreName);
+        Genre genre = genreFactory.create(genreName);
         return genreRepository.save(genre);
     }
 

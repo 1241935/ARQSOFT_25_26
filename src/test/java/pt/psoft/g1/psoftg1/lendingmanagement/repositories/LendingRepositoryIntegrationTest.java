@@ -11,6 +11,7 @@ import pt.psoft.g1.psoftg1.authormanagement.repositories.AuthorRepository;
 import pt.psoft.g1.psoftg1.bookmanagement.factories.BookFactory;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;
+import pt.psoft.g1.psoftg1.genremanagement.factories.GenreFactory;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
 import pt.psoft.g1.psoftg1.genremanagement.repositories.GenreRepository;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.Lending;
@@ -46,6 +47,8 @@ public class LendingRepositoryIntegrationTest {
     private AuthorRepository authorRepository;
     @Autowired
     private BookFactory bookFactory;
+    @Autowired
+    private GenreFactory genreFactory;
 
     private Lending lending;
     private ReaderDetails readerDetails;
@@ -61,7 +64,7 @@ public class LendingRepositoryIntegrationTest {
                 null);
         authorRepository.save(author);
 
-        genre = new Genre("Género");
+        genre = genreFactory.create("Género");
         genreRepository.save(genre);
 
         List<Author> authors = List.of(author);

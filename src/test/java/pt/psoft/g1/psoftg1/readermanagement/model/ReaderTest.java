@@ -75,8 +75,8 @@ public class ReaderTest {
     @Test
     void ensureInterestListCanTakeAnyValidGenre() {
         Reader mockReader = mock(Reader.class);
-        Genre g1 = new Genre("genre1");
-        Genre g2 = new Genre("genre2");
+        Genre g1 = new Genre("123","genre1");
+        Genre g2 = new Genre("124","genre2");
         List<Genre> genreList = new ArrayList<>();
         genreList.add(g1);
         genreList.add(g2);

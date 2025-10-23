@@ -1,0 +1,31 @@
+@startuml
+title Vista de processo - Nível 2
+skinparam sequenceMessageAlign center
+
+actor "Cliente" as Client
+participant "BackEnd" as System
+participant "ISBNdb API" as API
+
+Client -> System: GET /isbn?title={título}
+activate System
+
+System -> API: Pesquisar livro
+activate API
+API --> System:ISBN
+deactivate API
+
+System --> Client: 200 OK (ISBN)
+deactivate System
+
+alt ISBN não encontrado
+    Client -> System: GET /isbn?title={título}
+    activate System
+    System -> API: Pesquisar ISBN
+    activate API
+    API --> System: Nenhum resultado
+    deactivate API
+    System --> Client: 404 Not Found
+    deactivate System
+end
+
+@enduml

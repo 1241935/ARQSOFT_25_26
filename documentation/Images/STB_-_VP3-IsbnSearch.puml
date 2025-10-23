@@ -1,0 +1,38 @@
+@startuml
+title Vista de processo - Nível 3
+
+actor ":Cliente" as Client
+participant ":BookController" as Controller
+participant ":BookService" as Service
+participant ":LibraryApi" as Interface
+participant "ISBNdb API" as API
+
+Client -> Controller: GET /isbn?title={título}
+activate Controller
+
+Controller -> Service: findIsbnFromExternalApi(title)
+activate Service
+
+Service -> Interface: findIsbnByTitle(title)
+activate Interface
+
+Interface -> API: GET /books/{title}
+activate API
+API --> Interface: Response (JSON)
+deactivate API
+
+Interface --> Service: Optional<String>
+deactivate Interface
+
+Service --> Controller: Optional<String>
+deactivate Service
+
+alt ISBN presente
+    Controller --> Client: 200 OK (ISBN)
+else ISBN não encontrado
+    Controller --> Client: 404 Not Found
+end
+
+deactivate Controller
+
+@enduml

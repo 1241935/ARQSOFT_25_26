@@ -1,0 +1,17 @@
+@startuml
+title Vista de processo - Nível 1: System Sequence Diagram
+
+participant ":LMS\n(Library Management System)" as System
+
+[o-> System: GET /isbn?title={título}
+activate System
+
+alt ISBN encontrado
+    [o<-- System: isbn : String
+else ISBN não encontrado
+    [o<-- System: 404 Not Found
+end
+
+deactivate System
+
+@enduml

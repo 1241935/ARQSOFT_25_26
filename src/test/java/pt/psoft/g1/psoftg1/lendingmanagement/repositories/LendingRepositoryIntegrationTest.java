@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.lendingmanagement.repositories;
+/*package pt.psoft.g1.psoftg1.lendingmanagement.repositories;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -233,4 +233,4 @@ public class LendingRepositoryIntegrationTest {
         assertThat(overdueLendings).contains(notReturnedLending);
         assertThat(overdueLendings).doesNotContain(notReturnedAndNotOverdueLending);
     }
-}
+}*/

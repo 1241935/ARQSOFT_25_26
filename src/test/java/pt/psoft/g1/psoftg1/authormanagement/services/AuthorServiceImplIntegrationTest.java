@@ -10,6 +10,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.repositories.AuthorRepository;
+import pt.psoft.g1.psoftg1.bookmanagement.services.IsbndbService;
+import pt.psoft.g1.psoftg1.shared.services.IdGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,10 @@ public class AuthorServiceImplIntegrationTest {
     private AuthorService authorService;
     @MockBean
     private AuthorRepository authorRepository;
+    @MockBean
+    private IsbndbService isbndbService;
+    @MockBean
+    private IdGenerator idGenerator;
 
     @BeforeEach
     public void setUp() {

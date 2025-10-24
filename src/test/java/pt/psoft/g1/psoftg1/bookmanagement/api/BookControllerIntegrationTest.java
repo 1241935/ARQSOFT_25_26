@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "base65"})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BookControllerIntegrationTest {
 
@@ -153,7 +153,7 @@ class BookControllerIntegrationTest {
                 {
                     "isbn": "%s",
                     "title": "Second Book",
-                    "genreId": %d,
+                    "genreId": %s,
                     "authorIds": [%d]
                 }
                 """, duplicateIsbn, testGenre.getPk(), testAuthor.getId());
@@ -339,7 +339,7 @@ class BookControllerIntegrationTest {
                 {
                     "isbn": "%s",
                     "title": "Test",
-                    "genreId": %d,
+                    "genreId": %s,
                     "authorIds": [%d]
                 }
                 """, uniqueIsbn, testGenre.getPk(), testAuthor.getId());
@@ -350,60 +350,6 @@ class BookControllerIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
-
-    // ===========================================
-    // WORKFLOW COMPLETO
-    // ===========================================
-    /*
-    @Test
-    @Order(16)
-    @WithMockUser(roles = "LIBRARIAN")
-    void fullWorkflow_CreateUpdateDelete_WorksCorrectly() throws Exception {
-        String uniqueIsbn = generateUniqueIsbn();
-
-        // 1. Create
-        String bookJson = String.format("""
-                {
-                    "isbn": "%s",
-                    "title": "Workflow Test",
-                    "description": "Original",
-                    "genreId": %d,
-                    "authorIds": [%d]
-                }
-                """, uniqueIsbn, testGenre.getPk(), testAuthor.getId());
-
-        String createResponse = mockMvc.perform(post("/api/books")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(bookJson))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        Long bookPk = objectMapper.readTree(createResponse).get("pk").asLong();
-        Long version = objectMapper.readTree(createResponse).get("version").asLong();
-
-        // 2. Update
-        String updateJson = String.format("""
-                {
-                    "title": "Workflow Test - Updated",
-                    "version": %d
-                }
-                """, version);
-
-        mockMvc.perform(put("/api/books/" + bookPk)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateJson))
-                .andExpect(status().isOk());
-
-        // 3. Delete
-        mockMvc.perform(delete("/api/books/" + bookPk))
-                .andExpect(status().isNoContent());
-
-        // 4. Verify deletion
-        mockMvc.perform(get("/api/books/" + bookPk))
-                .andExpect(status().isNotFound());
-    }*/
 
     // ===========================================
     // HELPER METHODS

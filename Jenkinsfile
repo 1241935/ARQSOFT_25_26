@@ -21,13 +21,12 @@ pipeline {
       }
     }
 
-    stage('BUILD & PACKAGE') {
-      steps {
-        echo 'Building and Packaging'
-        sh 'mvn clean package -DskipTests'
-        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-      }
-    }
+    stage('BUILD') {
+            steps {
+                echo 'Building'
+                sh 'mvn clean compile'
+            }
+        }
 
     stage('STATIC CODE ANALYSIS') {
       steps {
@@ -52,6 +51,13 @@ pipeline {
           jacoco execPattern: '**/target/jacoco.exec'
           //recordIssues tools: [checkStyle(pattern: '**/target/checkstyle-result.xml')]
         }
+      }
+    }
+    stage('PACKAGE') {
+      steps {
+        echo 'Packaging'
+        sh 'mvn clean package -DskipTests'
+        archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
       }
     }
   }

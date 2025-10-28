@@ -1,15 +1,23 @@
 pipeline {
   agent any
+  // AUTOMATIC STEP. CAN REMOVE IT.
+  options {
+    skipDefaultCheckout true
+  }
 
   triggers {
     githubPush()
   }
 
   stages {
+    // AUTOMATIC STEP. CAN REMOVE IT.
     stage('CHECKOUT BRANCH') {
       steps {
         echo "Checking out DEV branch"
-        git scm
+        checkout([$class: 'GitSCM',
+          branches: [[name: '*/dev']],
+          userRemoteConfigs: [[url: 'https://github.com/1241935/ARQSOFT_25_26.git']]
+        ])
       }
     }
 

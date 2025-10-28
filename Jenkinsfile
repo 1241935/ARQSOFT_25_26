@@ -28,11 +28,11 @@ pipeline {
     }
 
     stage('BUILD') {
-            steps {
-                echo 'Building'
-                sh 'mvn clean compile'
-            }
-        }
+      steps {
+        echo 'Building'
+        sh 'mvn clean compile'
+      }
+    }
 
     stage('STATIC CODE ANALYSIS') {
       steps {
@@ -59,6 +59,7 @@ pipeline {
         }
       }
     }
+
     stage('PACKAGE') {
       steps {
         echo 'Packaging'
@@ -70,10 +71,10 @@ pipeline {
 
   post {
     success {
-      echo "✅ SUCCESS ON DEV PIPELINE!"
+      echo "SUCCESS ON DEV PIPELINE!"
     }
     failure {
-      echo "❌ FAILIRE ON DEV PIPELINE."
+      echo "FAILIRE ON DEV PIPELINE."
     }
   }
 }

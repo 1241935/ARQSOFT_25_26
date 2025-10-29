@@ -2,6 +2,7 @@ package pt.psoft.g1.psoftg1.bookmanagement.services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@Primary
 public class IsbndbService implements LibraryApi {
 
     private static final String API_URL = "https://api2.isbndb.com/books/{title}";

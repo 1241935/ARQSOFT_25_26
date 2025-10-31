@@ -181,6 +181,30 @@
 					<failsOnError>false</failsOnError>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.15.0</version>
+                <configuration>
+                    <targetClasses>
+                        <param>pt.psoft.g1.psoftg1.*.model.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>pt.psoft.g1.psoftg1.*.model.*Test</param>
+                    </targetTests>
+                    <threads>4</threads>
+                    <outputFormats>
+                        <param>HTML</param>
+                    </outputFormats>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>1.2.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
 		</plugins>
 	</build>
 </project>

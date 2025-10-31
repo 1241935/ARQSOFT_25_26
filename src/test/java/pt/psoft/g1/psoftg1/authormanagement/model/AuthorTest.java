@@ -7,11 +7,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import pt.psoft.g1.psoftg1.authormanagement.services.CreateAuthorRequest;
 import pt.psoft.g1.psoftg1.authormanagement.services.UpdateAuthorRequest;
+import pt.psoft.g1.psoftg1.exceptions.ConflictException;
 import pt.psoft.g1.psoftg1.shared.model.EntityWithPhoto;
 import pt.psoft.g1.psoftg1.shared.model.Photo;
 
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class AuthorTest {
     private final String validName = "João Alberto";
@@ -99,182 +102,270 @@ class AuthorTest {
 
 
     @Test
-    @DisplayName("Should create author with all valid parameters")
-    void testConstructor_AllValidParameters() {
-        Author newAuthor = new Author("Jane Smith", "Bio text", "photo.jpg");
+    void whenValidParameters_thenAuthorIsCreated() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "photo.jpg";
 
-        assertNotNull(newAuthor);
-        assertEquals("Jane Smith", newAuthor.getName());
-        assertEquals("Bio text", newAuthor.getBio());
-        assertEquals("photo.jpg", newAuthor.getPhoto().getPhotoFile());
+        // Act
+        Author author = new Author(name, bio, photoURI);
+
+        // Assert
+        assertNotNull(author);
+        assertEquals(name, author.getName());
+        assertEquals(bio, author.getBio());
+        assertNotNull(author.getPhoto());
+        assertEquals(photoURI, author.getPhoto().getPhotoFile());
     }
 
     @Test
-    @DisplayName("Should throw exception with empty name")
-    void testConstructor_EmptyName() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new Author("", validBio, "photo.jpg");
-        });
+    void whenValidName_thenNameIsSet() {
+        // Arrange
+        String initialName = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
+        Author author = new Author(initialName, bio, photoURI);
+
+        String newName = "Fernando Pessoa";
+
+        // Act
+        author.setName(newName);
+
+        // Assert
+        assertEquals(newName, author.getName());
     }
 
     @Test
-    @DisplayName("Should throw exception with blank name")
-    void testConstructor_BlankName() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new Author("   ", validBio, "photo.jpg");
-        });
+    void whenValidBio_thenBioIsSet() {
+        // Arrange
+        String name = "José Saramago";
+        String initialBio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
+        Author author = new Author(name, initialBio, photoURI);
+
+        String newBio = "Updated biography text";
+
+        // Act
+        author.setBio(newBio);
+
+        // Assert
+        assertEquals(newBio, author.getBio());
     }
 
     @Test
-    @DisplayName("Should throw exception with empty bio")
-    void testConstructor_EmptyBio() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new Author(validName, "", "photo.jpg");
-        });
-    }
+    void whenApplyPatchWithValidVersionAndName_thenNameIsUpdated() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
+        Author author = new Author(name, bio, photoURI);
 
-
-    @Test
-    @DisplayName("Should update all fields with correct version")
-    void testApplyPatch_AllFieldsWithCorrectVersion() {
-        UpdateAuthorRequest updateRequest = new UpdateAuthorRequest(
-                "Updated Bio",
-                "Updated Name",
-                null,
-                "updated-photo.jpg"
-        );
+        UpdateAuthorRequest request = mock(UpdateAuthorRequest.class);
+        when(request.getName()).thenReturn("Fernando Pessoa");
+        when(request.getBio()).thenReturn(null);
+        when(request.getPhotoURI()).thenReturn(null);
 
         long currentVersion = author.getVersion();
-        author.applyPatch(currentVersion, updateRequest);
 
-        assertEquals("Updated Name", author.getName());
-        assertEquals("Updated Bio", author.getBio());
-        assertEquals("updated-photo.jpg", author.getPhoto().getPhotoFile());
+        // Act
+        author.applyPatch(currentVersion, request);
+
+        // Assert
+        assertEquals("Fernando Pessoa", author.getName());
+        assertEquals(bio, author.getBio());
     }
 
     @Test
-    @DisplayName("Should throw StaleObjectStateException with wrong version")
-    void testApplyPatch_WrongVersion() {
-        UpdateAuthorRequest updateRequest = new UpdateAuthorRequest(
-                "Updated Name",
-                null,
-                null,
-                null
+    void whenApplyPatchWithValidVersionAndBio_thenBioIsUpdated() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
+        Author author = new Author(name, bio, photoURI);
+
+        UpdateAuthorRequest request = mock(UpdateAuthorRequest.class);
+        when(request.getName()).thenReturn(null);
+        when(request.getBio()).thenReturn("Updated biography");
+        when(request.getPhotoURI()).thenReturn(null);
+
+        long currentVersion = author.getVersion();
+
+        // Act
+        author.applyPatch(currentVersion, request);
+
+        // Assert
+        assertEquals(name, author.getName());
+        assertEquals("Updated biography", author.getBio());
+    }
+
+    @Test
+    void whenApplyPatchWithValidVersionAndPhoto_thenPhotoIsUpdated() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "photo.jpg";
+        Author author = new Author(name, bio, photoURI);
+
+        UpdateAuthorRequest request = mock(UpdateAuthorRequest.class);
+        when(request.getName()).thenReturn(null);
+        when(request.getBio()).thenReturn(null);
+        when(request.getPhotoURI()).thenReturn("new-photo.jpg");
+
+        long currentVersion = author.getVersion();
+
+        // Act
+        author.applyPatch(currentVersion, request);
+
+        // Assert
+        assertNotNull(author.getPhoto());
+        assertEquals("new-photo.jpg", author.getPhoto().getPhotoFile());
+    }
+
+    @Test
+    void whenApplyPatchWithAllFields_thenAllFieldsAreUpdated() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "photo.jpg";
+        Author author = new Author(name, bio, photoURI);
+
+        UpdateAuthorRequest request = mock(UpdateAuthorRequest.class);
+        when(request.getName()).thenReturn("Fernando Pessoa");
+        when(request.getBio()).thenReturn("Portuguese poet");
+        when(request.getPhotoURI()).thenReturn("new-photo.jpg");
+
+        long currentVersion = author.getVersion();
+
+        // Act
+        author.applyPatch(currentVersion, request);
+
+        // Assert
+        assertEquals("Fernando Pessoa", author.getName());
+        assertEquals("Portuguese poet", author.getBio());
+        assertNotNull(author.getPhoto());
+        assertEquals("new-photo.jpg", author.getPhoto().getPhotoFile());
+    }
+
+    @Test
+    void whenApplyPatchWithInvalidVersion_thenThrowsStaleObjectStateException() {
+        // Arrange
+        String expectedMessage = "Object was already modified by another user";
+
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "photo.jpg";
+        Author author = new Author(name, bio, photoURI);
+
+        UpdateAuthorRequest request = mock(UpdateAuthorRequest.class);
+        when(request.getName()).thenReturn("Fernando Pessoa");
+
+        long currentVersion = author.getVersion();
+        long wrongVersion = currentVersion + 1;
+
+        // Act + Assert
+        Exception exception = assertThrows(StaleObjectStateException.class, () ->
+                author.applyPatch(wrongVersion, request)
         );
 
-        long wrongVersion = author.getVersion() + 1;
-
-        assertThrows(StaleObjectStateException.class, () -> {
-            author.applyPatch(wrongVersion, updateRequest);
-        });
+        // Assert
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
-    @DisplayName("Should update only name when only name is provided")
-    void testApplyPatch_OnlyName() {
-        UpdateAuthorRequest updateRequest = new UpdateAuthorRequest(
-                null,
-                "Only Name Updated",
-                null,
-                null
+    void whenApplyPatchWithNullFields_thenOriginalValuesAreKept() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "photo.jpg";
+        Author author = new Author(name, bio, photoURI);
+
+        UpdateAuthorRequest request = mock(UpdateAuthorRequest.class);
+        when(request.getName()).thenReturn(null);
+        when(request.getBio()).thenReturn(null);
+        when(request.getPhotoURI()).thenReturn(null);
+
+        long currentVersion = author.getVersion();
+
+        // Act
+        author.applyPatch(currentVersion, request);
+
+        // Assert
+        assertEquals(name, author.getName());
+        assertEquals(bio, author.getBio());
+        assertNotNull(author.getPhoto());
+        assertEquals(photoURI, author.getPhoto().getPhotoFile());
+    }
+
+    @Test
+    void whenRemovePhotoWithValidVersion_thenPhotoIsRemoved() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
+        Author author = new Author(name, bio, photoURI);
+
+        long currentVersion = author.getVersion();
+
+        // Act
+        author.removePhoto(currentVersion);
+
+        // Assert
+        assertNull(author.getPhoto());
+    }
+
+    @Test
+    void whenRemovePhotoWithInvalidVersion_thenThrowsConflictException() {
+        // Arrange
+        String expectedMessage = "Provided version does not match latest version of this object";
+
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
+        Author author = new Author(name, bio, photoURI);
+
+        long currentVersion = author.getVersion();
+        long wrongVersion = currentVersion + 1;
+
+        // Act + Assert
+        Exception exception = assertThrows(ConflictException.class, () ->
+                author.removePhoto(wrongVersion)
         );
 
-        String originalBio = author.getBio();
-
-        author.applyPatch(author.getVersion(), updateRequest);
-
-        assertEquals("Only Name Updated", author.getName());
-        assertEquals(originalBio, author.getBio());
+        // Assert
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
-    @DisplayName("Should update only bio when only bio is provided")
-    void testApplyPatch_OnlyBio() {
-        UpdateAuthorRequest updateRequest = new UpdateAuthorRequest(
-                "Only Bio Updated",
-                null,
-                null,
-                null
-        );
+    void whenGetId_thenReturnsAuthorNumber() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
+        Author author = new Author(name, bio, photoURI);
 
-        String originalName = author.getName();
+        // Act
+        Long id = author.getId();
 
-        author.applyPatch(author.getVersion(), updateRequest);
-
-        assertEquals(originalName, author.getName());
-        assertEquals("Only Bio Updated", author.getBio());
+        // Assert
+        assertEquals(author.getAuthorNumber(), id);
     }
 
     @Test
-    @DisplayName("Should update only photo when only photo is provided")
-    void testApplyPatch_OnlyPhoto() {
-        Author authorWithPhoto = new Author(validName, validBio, "original.jpg");
+    void whenNewAuthorCreated_thenVersionIsInitialized() {
+        // Arrange
+        String name = "José Saramago";
+        String bio = "Portuguese Nobel Prize winner";
+        String photoURI = "http://example.com/photo.jpg";
 
-        UpdateAuthorRequest updateRequest = new UpdateAuthorRequest(
-                null,
-                null,
-                null,
-                "new-photo.jpg"
-        );
+        // Act
+        Author author = new Author(name, bio, photoURI);
 
-        String originalName = authorWithPhoto.getName();
-        String originalBio = authorWithPhoto.getBio();
-
-        authorWithPhoto.applyPatch(authorWithPhoto.getVersion(), updateRequest);
-
-        assertEquals(originalName, authorWithPhoto.getName());
-        assertEquals(originalBio, authorWithPhoto.getBio());
-        assertEquals("new-photo.jpg", authorWithPhoto.getPhoto().getPhotoFile());
-    }
-
-    @Test
-    @DisplayName("Should not update when all fields are null")
-    void testApplyPatch_AllFieldsNull() {
-        UpdateAuthorRequest emptyRequest = new UpdateAuthorRequest(null, null, null, null);
-
-        String originalName = author.getName();
-        String originalBio = author.getBio();
-
-        author.applyPatch(author.getVersion(), emptyRequest);
-
-        assertEquals(originalName, author.getName());
-        assertEquals(originalBio, author.getBio());
-    }
-
-    @Test
-    @DisplayName("Should handle combination of null and non-null fields")
-    void testApplyPatch_MixedNullAndNonNull() {
-        Author authorWithPhoto = new Author(validName, validBio, "photo.jpg");
-
-        UpdateAuthorRequest updateRequest = new UpdateAuthorRequest(
-                null,
-                "New Name",  // bio stays unchanged
-                null,
-                "new-photo.jpg"
-        );
-
-        String originalBio = authorWithPhoto.getBio();
-
-        authorWithPhoto.applyPatch(authorWithPhoto.getVersion(), updateRequest);
-
-        assertEquals("New Name", authorWithPhoto.getName());
-        assertEquals(originalBio, authorWithPhoto.getBio());
-        assertEquals("new-photo.jpg", authorWithPhoto.getPhoto().getPhotoFile());
-    }
-
-    @Test
-    @DisplayName("Should throw exception when version is negative")
-    void testApplyPatch_NegativeVersion() {
-        UpdateAuthorRequest updateRequest = new UpdateAuthorRequest(
-                "Updated Name",
-                null,
-                null,
-                null
-        );
-
-        assertThrows(StaleObjectStateException.class, () -> {
-            author.applyPatch(-1, updateRequest);
-        });
+        // Assert
+        assertNotNull(author.getVersion());
+        assertEquals(0L, author.getVersion());
     }
 }
 

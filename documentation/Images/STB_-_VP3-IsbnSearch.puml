@@ -5,7 +5,7 @@ actor ":Cliente" as Client
 participant ":BookController" as Controller
 participant ":BookService" as Service
 participant ":LibraryApi" as Interface
-participant "ISBNdb API" as API
+participant "External API" as API
 
 Client -> Controller: GET /isbn?title={título}
 activate Controller

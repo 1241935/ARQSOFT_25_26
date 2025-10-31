@@ -1,0 +1,175 @@
+@startuml
+title Vista de Processo - Nível 4: Busca de ISBN por Título (Implementação ISBNdb)
+
+actor ":Cliente" as Client
+participant ":BookController" as Controller
+participant ":BookService" as Service
+participant ":LibraryApi\n<<interface>>" as Interface
+box "Carregado via Profile" #LightBlue
+    participant ":IsbndbService\n@Profile('isbndb')" as IsbndbImpl
+end box
+participant ":RestTemplate" as RestTemplate
+participant "ISBNdb API\n(https://api2.isbndb.com)" as API
+
+note over IsbndbImpl
+  **Setup Time (Application Startup):**
+  - Spring lê application.properties
+  - Profile ativo: spring.profiles.active=isbndb
+  - Bean IsbndbService é criado e injetado
+
+  **Configurações carregadas:**
+  - isbndb.api.key=${ISBNDB_API_KEY}
+  - isbndb.base.url=https://api2.isbndb.com
+end note
+
+Client -> Controller: GET /api/books/isbn?title=Clean Code
+activate Controller
+
+Controller -> Service: findIsbnFromExternalApi("Clean Code")
+activate Service
+
+Service -> Interface: findIsbnByTitle("Clean Code")
+activate Interface
+
+note right of Interface
+Outras implementações possíveis:
+  - OpenLibraryService (@Profile("openlibrary"))
+  - GoogleBooksService (@Profile("googlebooks"))
+end note
+
+Interface -> IsbndbImpl: findIsbnByTitle("Clean Code")
+activate IsbndbImpl
+
+IsbndbImpl -> IsbndbImpl: buildRequestUrl("Clean Code")
+note right
+  URL = baseUrl + "/books/" + URLEncoder.encode(title)
+  Result: https://api2.isbndb.com/books/Clean%20Code
+end note
+
+IsbndbImpl -> IsbndbImpl: buildHttpHeaders()
+note right
+  HttpHeaders headers = new HttpHeaders()
+  headers.set("Authorization", apiKey)
+  headers.set("Content-Type", "application/json")
+end note
+
+IsbndbImpl -> RestTemplate: exchange(url, GET, headers, BookResponse.class)
+activate RestTemplate
+
+RestTemplate -> API: HTTP GET /books/Clean%20Code\nAuthorization: {apiKey}\nContent-Type: application/json
+activate API
+
+alt Resposta bem-sucedida (200 OK)
+    API --> RestTemplate: 200 OK\n{\n  "book": {\n    "isbn13": "9780132350884",\n    "title": "Clean Code",\n    "authors": ["Robert C. Martin"]\n  }\n}
+    deactivate API
+
+    RestTemplate --> IsbndbImpl: ResponseEntity<BookResponse>(200)
+    deactivate RestTemplate
+
+    IsbndbImpl -> IsbndbImpl: extractIsbn(response.getBody())
+    note right
+      String isbn = response.getBody()
+                           .getBook()
+                           .getIsbn13()
+      return Optional.of(isbn)
+    end note
+
+    IsbndbImpl --> Interface: Optional.of("9780132350884")
+    deactivate IsbndbImpl
+
+    Interface --> Service: Optional.of("9780132350884")
+    deactivate Interface
+
+    Service --> Controller: Optional.of("9780132350884")
+    deactivate Service
+
+    Controller --> Client: 200 OK\n{\n  "isbn": "9780132350884"\n}
+    deactivate Controller
+
+else Livro não encontrado (404)
+    API --> RestTemplate: 404 Not Found\n{"error": "Book not found"}
+    deactivate API
+
+    RestTemplate --> IsbndbImpl: ResponseEntity(404)
+    deactivate RestTemplate
+
+    IsbndbImpl -> IsbndbImpl: log.info("Book not found: Clean Code")
+
+    IsbndbImpl --> Interface: Optional.empty()
+    deactivate IsbndbImpl
+
+    Interface --> Service: Optional.empty()
+    deactivate Interface
+
+    Service --> Controller: Optional.empty()
+    deactivate Service
+
+    Controller --> Client: 404 Not Found\n{"error": "ISBN not found"}
+    deactivate Controller
+
+else Erro de autenticação (401)
+    API --> RestTemplate: 401 Unauthorized\n{"error": "Invalid API key"}
+    deactivate API
+
+    RestTemplate -> IsbndbImpl: throw HttpClientErrorException(401)
+    deactivate RestTemplate
+
+    IsbndbImpl -> IsbndbImpl: catch(HttpClientErrorException e)\nlog.error("Auth failed", e)
+
+    IsbndbImpl --> Interface: Optional.empty()
+    deactivate IsbndbImpl
+
+    Interface --> Service: Optional.empty()
+    deactivate Interface
+
+    Service --> Controller: Optional.empty()
+    deactivate Service
+
+    Controller --> Client: 503 Service Unavailable\n{"error": "External API error"}
+    deactivate Controller
+
+else Timeout / Erro de rede
+    API --> RestTemplate: SocketTimeoutException
+    deactivate API
+
+    RestTemplate -> IsbndbImpl: throw ResourceAccessException
+    deactivate RestTemplate
+
+    IsbndbImpl -> IsbndbImpl: catch(ResourceAccessException e)\nlog.error("API timeout", e)
+
+    IsbndbImpl --> Interface: Optional.empty()
+    deactivate IsbndbImpl
+
+    Interface --> Service: Optional.empty()
+    deactivate Interface
+
+    Service --> Controller: Optional.empty()
+    deactivate Service
+
+    Controller --> Client: 503 Service Unavailable\n{"error": "API timeout"}
+    deactivate Controller
+
+else Rate limit excedido (429)
+    API --> RestTemplate: 429 Too Many Requests\n{"error": "Rate limit exceeded"}
+    deactivate API
+
+    RestTemplate --> IsbndbImpl: ResponseEntity(429)
+    deactivate RestTemplate
+
+    IsbndbImpl -> IsbndbImpl: log.warn("Rate limit hit for ISBNdb API")
+
+    IsbndbImpl --> Interface: Optional.empty()
+    deactivate IsbndbImpl
+
+    Interface --> Service: Optional.empty()
+    deactivate Interface
+
+    Service --> Controller: Optional.empty()
+    deactivate Service
+
+    Controller --> Client: 429 Too Many Requests\n{"error": "Rate limit exceeded"}
+    deactivate Controller
+end
+
+
+@enduml

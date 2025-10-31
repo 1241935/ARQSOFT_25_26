@@ -1,9 +1,11 @@
 package pt.psoft.g1.psoftg1.genremanagement.model;
 
 import org.junit.jupiter.api.Test;
+import pt.psoft.g1.psoftg1.genremanagement.factories.GenreFactory;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class GenreTest {
 
@@ -46,6 +48,206 @@ class GenreTest {
     void ensureGenreIsSet() {
         final var genre = new Genre("123","Some genre");
         assertEquals("Some genre", genre.toString());
+    }
+
+    @Test
+    void whenValidParameters_thenGenreIsCreated() {
+        // Arrange
+        String pk = "1";
+        String genreName = "Fiction";
+
+        // Act
+        Genre genre = new Genre(pk, genreName);
+
+        // Assert
+        assertNotNull(genre);
+        assertEquals(pk, genre.getPk());
+        assertEquals(genreName, genre.getGenre());
+    }
+
+    @Test
+    void whenCreateGenreUsingFactory_thenGenreIsCreatedWithGeneratedPk() {
+        // Arrange
+        String genreName = "Fiction";
+
+        GenreFactory factoryDouble = mock(GenreFactory.class);
+        Genre genreDouble = mock(Genre.class);
+
+        when(factoryDouble.create(genreName)).thenReturn(genreDouble);
+
+        // Act
+        Genre genre = factoryDouble.create(genreName);
+
+        // Assert
+        assertNotNull(genre);
+        verify(factoryDouble).create(genreName);
+    }
+
+    @Test
+    void whenNullGenre_thenThrowsIllegalArgumentException() {
+        // Arrange
+        String expectedMessage = "Genre cannot be null";
+        String pk = "1";
+
+        // Act + Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                new Genre(pk, null)
+        );
+
+        // Assert
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void whenBlankGenre_thenThrowsIllegalArgumentException() {
+        // Arrange
+        String expectedMessage = "Genre cannot be blank";
+        String pk = "1";
+
+        // Act + Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                new Genre(pk, "")
+        );
+
+        // Assert
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void whenBlankGenreWithSpaces_thenThrowsIllegalArgumentException() {
+        // Arrange
+        String expectedMessage = "Genre cannot be blank";
+        String pk = "1";
+
+        // Act + Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                new Genre(pk, "   ")
+        );
+
+        // Assert
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void whenGenreExceedsMaxLength_thenThrowsIllegalArgumentException() {
+        // Arrange
+        String expectedMessage = "Genre has a maximum of 4096 characters";
+        String pk = "1";
+        String longGenre = "a".repeat(101);
+
+        // Act + Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                new Genre(pk, longGenre)
+        );
+
+        // Assert
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void whenGenreAtMaxLength_thenGenreIsCreated() {
+        // Arrange
+        String pk = "1";
+        String maxLengthGenre = "a".repeat(100);
+
+        // Act
+        Genre genre = new Genre(pk, maxLengthGenre);
+
+        // Assert
+        assertNotNull(genre);
+        assertEquals(maxLengthGenre, genre.getGenre());
+    }
+
+    @Test
+    void whenGenreAtMinLength_thenGenreIsCreated() {
+        // Arrange
+        String pk = "1";
+        String minLengthGenre = "a";
+
+        // Act
+        Genre genre = new Genre(pk, minLengthGenre);
+
+        // Assert
+        assertNotNull(genre);
+        assertEquals(minLengthGenre, genre.getGenre());
+    }
+
+    @Test
+    void whenToString_thenReturnsGenreName() {
+        // Arrange
+        String pk = "1";
+        String genreName = "Fiction";
+        Genre genre = new Genre(pk, genreName);
+
+        // Act
+        String result = genre.toString();
+
+        // Assert
+        assertEquals(genreName, result);
+    }
+
+    @Test
+    void whenValidGenreWithSpecialCharacters_thenGenreIsCreated() {
+        // Arrange
+        String pk = "1";
+        String genreName = "Science-Fiction & Fantasy";
+
+        // Act
+        Genre genre = new Genre(pk, genreName);
+
+        // Assert
+        assertNotNull(genre);
+        assertEquals(genreName, genre.getGenre());
+    }
+
+    @Test
+    void whenValidGenreWithNumbers_thenGenreIsCreated() {
+        // Arrange
+        String pk = "1";
+        String genreName = "20th Century Literature";
+
+        // Act
+        Genre genre = new Genre(pk, genreName);
+
+        // Assert
+        assertNotNull(genre);
+        assertEquals(genreName, genre.getGenre());
+    }
+
+    @Test
+    void whenValidGenreWithAccents_thenGenreIsCreated() {
+        // Arrange
+        String pk = "1";
+        String genreName = "Ficção Científica";
+
+        // Act
+        Genre genre = new Genre(pk, genreName);
+
+        // Assert
+        assertNotNull(genre);
+        assertEquals(genreName, genre.getGenre());
+    }
+
+    @Test
+    void whenMultipleGenresCreated_thenEachHasUniquePk() {
+        // Arrange
+        String pk1 = "1";
+        String pk2 = "2";
+        String genreName1 = "Fiction";
+        String genreName2 = "Non-Fiction";
+
+        // Act
+        Genre genre1 = new Genre(pk1, genreName1);
+        Genre genre2 = new Genre(pk2, genreName2);
+
+        // Assert
+        assertNotEquals(genre1.getPk(), genre2.getPk());
+        assertEquals(pk1, genre1.getPk());
+        assertEquals(pk2, genre2.getPk());
     }
 
 }

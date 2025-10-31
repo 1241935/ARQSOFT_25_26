@@ -1,0 +1,60 @@
+@startuml
+title Vista de Processo - Nível 3: Criar Livro
+
+actor ":Cliente" as Client
+participant ":BookController" as Controller
+participant ":FileStorageService" as FileStorage
+participant ":BookService" as Service
+participant ":BookRepository" as Repository
+
+Client -> Controller: PUT /api/books/{isbn}
+activate Controller
+
+Controller -> Controller: resource.setPhotoURI(null)
+
+Controller -> FileStorage: getRequestPhoto(file)
+activate FileStorage
+
+alt Photo presente
+    FileStorage --> Controller: fileName\n(e.g., "book_uuid.jpg")
+    deactivate FileStorage
+    Controller -> Controller: resource.setPhotoURI(fileName)
+else Sem photo ou erro
+    FileStorage --> Controller: null
+    deactivate FileStorage
+end
+
+Controller -> Service: create(resource, isbn)
+activate Service
+
+Service -> Service: Criar objeto Book\ncom dados do request
+
+Service -> Repository: save(book)
+activate Repository
+
+alt Sucesso
+    Repository --> Service: book\n(com id, version=0)
+    deactivate Repository
+
+    Service --> Controller: book
+    deactivate Service
+
+    Controller -> Controller: Construir URI:\nServletUriComponentsBuilder\n.pathSegment(isbn)
+
+    Controller --> Client: 201 Created
+
+else Erro na criação (Exception)
+    Repository --> Service: Exception
+    deactivate Repository
+
+    Service -> Controller: throw Exception
+    deactivate Service
+
+    Controller -> Controller: catch(Exception e)
+
+    Controller --> Client: 400 Bad Request
+end
+
+deactivate Controller
+
+@enduml

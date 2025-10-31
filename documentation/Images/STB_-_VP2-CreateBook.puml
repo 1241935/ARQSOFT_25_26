@@ -1,0 +1,31 @@
+@startuml
+title Vista de processo - Nível 2
+skinparam sequenceMessageAlign center
+
+actor "Cliente" as Client
+participant "BackEnd" as System
+participant "DataBase" as DB
+
+Client -> System: PUT /api/books/{isbn}
+activate System
+
+System -> DB: Create Book
+activate DB
+DB --> System:newBook : Book
+deactivate DB
+
+System --> Client: 201 Created (newBook)
+deactivate System
+
+alt Bad Request Error
+    Client -> System: PUT /api/books/{isbn}
+    activate System
+    System -> DB: Create Book
+    activate DB
+    DB --> System: Error
+    deactivate DB
+    System --> Client: 400 Bad Request
+    deactivate System
+end
+
+@enduml

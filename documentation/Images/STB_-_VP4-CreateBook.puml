@@ -1,0 +1,118 @@
+@startuml
+title Vista de Processo - Nível 4: BookService.create() - Criação de Livro com Profile-based ID Generation
+
+actor ":Cliente" as Client
+participant ":BookController" as Controller
+participant ":BookService" as Service
+participant ":BookFactory" as Factory
+box "Carregado via Profile" #LightBlue
+    participant ":IdGenerator\n<<interface>>" as IdGenInterface
+    participant ":Base65IdGenerator\n@Profile('base65')" as Base65Generator
+end box
+participant ":Book" as Book
+participant ":GenreRepository" as GenreRepo
+participant ":AuthorRepository" as AuthorRepo
+participant ":BookRepository" as BookRepo
+
+note over Base65Generator
+  **Setup Time (Application Startup):**
+  - Spring lê application.properties
+  - Profile ativo: spring.profiles.active=base65
+  - Bean Base65IdGenerator é criado
+  - Injetado em BookFactory como IdGenerator
+
+  Outras implementações possíveis:
+  - Hexadecimal (@Profile("hexa"))
+end note
+
+Client -> Controller: PUT /api/books/9780132350884\n{\n  "title": "Clean Code",\n  "genre": "Tech",\n  "authors": ["Robert Martin"]\n}
+activate Controller
+
+Controller -> Service: create(resource, "9780132350884")
+activate Service
+
+Service -> Service: Validar ISBN format
+note right
+  Valida formato do ISBN
+  (13 dígitos, checksum)
+end note
+
+Service -> GenreRepo: findByString("Tech")
+activate GenreRepo
+GenreRepo --> Service: Optional<Genre>
+deactivate GenreRepo
+
+alt Genre não encontrado
+    Service -> Controller: throw NotFoundException
+    deactivate Service
+    Controller --> Client: 404 Not Found\n{"error": "Genre not found"}
+    deactivate Controller
+end
+
+Service -> AuthorRepo: findByName("Robert Martin")
+activate AuthorRepo
+AuthorRepo --> Service: Optional<Author>
+deactivate AuthorRepo
+
+alt Author não encontrado
+    Service -> Controller: throw NotFoundException
+    deactivate Service
+    Controller --> Client: 404 Not Found\n{"error": "Author not found"}
+    deactivate Controller
+end
+
+Service -> Factory: create(isbn, title, description, genre, authors, photoURI)
+activate Factory
+
+Factory -> IdGenInterface: generateId()
+activate IdGenInterface
+
+IdGenInterface -> Base65Generator: generateId()
+activate Base65Generator
+
+Base65Generator -> Base65Generator: LocalDateTime.now()
+
+note right
+  Obter timestamp atual
+  e.g., 2025-10-31T16:10:00
+end note
+Base65Generator -> Base65Generator: encodeBase65()
+
+Base65Generator --> IdGenInterface: id
+deactivate Base65Generator
+
+IdGenInterface --> Factory: id
+deactivate IdGenInterface
+
+Factory -> Book: new Book(\nid,\n"9780132350884",\n"Clean Code",\ngenre,\nauthors,\nphotoURI)
+activate Book
+
+Book --> Factory: book
+deactivate Book
+
+Factory --> Service: book
+deactivate Factory
+
+Service -> BookRepo: save(book)
+activate BookRepo
+
+BookRepo -> BookRepo: EntityManager.persist(book)
+note right
+  JPA/Hibernate:
+  - INSERT INTO books
+  - Gera version = 0
+  - Commit da transação
+end note
+
+BookRepo --> Service: book
+deactivate BookRepo
+
+Service --> Controller: book
+deactivate Service
+
+Controller -> Controller: Construir response:\nResponseEntity.created()\nETag: "0"
+
+Controller --> Client: 201 Created\nLocation: /api/books/9780132350884\nETag: "0"\n{\n  "id": "id",\n  "isbn": "9780132350884",\n  "title": "Clean Code"\n}
+deactivate Controller
+
+@enduml

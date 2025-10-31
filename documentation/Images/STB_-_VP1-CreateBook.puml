@@ -1,0 +1,17 @@
+@startuml
+title Vista de processo - Nível 1: System Sequence Diagram
+
+participant ":LMS\n(Library Management System)" as System
+
+[o-> System: PUT /api/books/{isbn}
+activate System
+
+alt Book created
+    [o<-- System: newBook : Book
+else Error creating Book
+    [o<-- System: 400 Bad request
+end
+
+deactivate System
+
+@enduml

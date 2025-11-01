@@ -126,6 +126,11 @@ Os objetivos deste projeto (P1) são:
 
 #### Nivel 4 - IsbnSearch Process
 ![Vista de Processos Nivel 4](Images/STB_-_VP4-IsbnSearch.svg)
+
+
+#### DISCLAIMER
+No âmbito da arquitetura SAI e STB, não foi representada a Ninja API, uma vez que esta corresponde a um serviço externo ao processo de desenvolvimento e não faz parte do código ou infraestrutura sob responsabilidade da equipa. 
+Para complementar a descrição estrutural, foram elaboradas vistas de processo, que detalham os principais fluxos funcionais impactados pelos novos requisitos, nomeadamente a pesquisa de ISBN através de sistemas externos e a geração de identificadores (IDs) em múltiplos formatos. Estas vistas permitem compreender como os componentes do sistema interagem dinamicamente para satisfazer os novos cenários funcionais.
 ---
 
 ## Alternativas de Arquitetura para uma aplicação de Gestão de Biblioteca

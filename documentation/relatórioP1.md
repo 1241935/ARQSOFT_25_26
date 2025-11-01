@@ -86,6 +86,46 @@ Os objetivos deste projeto (P1) são:
 #### Nivel 4
 ![Vista de implementação Nivel 4](Images/SAI_-_VI4.svg)
 
+## System To Be
+
+### Vista física
+![Vista física](Images/STB_-_VF.svg)
+
+### Vista lógica
+#### Nivel 1
+![Vista lógica Nivel 1](Images/STB_-_VL1.svg)
+
+#### Nivel 2
+![Vista lógica Nivel 2](Images/STB_-_VL2.svg)
+
+#### Nivel 3
+![Vista lógica Nivel 3](Images/STB_-_VL3.svg)
+
+### Vista de Processos
+
+#### Nivel 1 - Create Book Process
+![Vista de Processos Nivel 1](Images/STB_-_VP1-CreateBook.svg)
+
+#### Nivel 2 - Create Book Process
+![Vista de Processos Nivel 2](Images/STB_-_VP2-CreateBook.svg)
+
+#### Nivel 3 - Create Book Process
+![Vista de Processos Nivel 3](Images/STB_-_VP3-CreateBook.svg)
+
+#### Nivel 4 - Create Book Process
+![Vista de Processos Nivel 4](Images/STB_-_VP4-CreateBook.svg)
+
+#### Nivel 1 - IsbnSearch Process
+![Vista de Processos Nivel 1](Images/STB_-_VP1-IsbnSearch.svg)
+
+#### Nivel 2 - IsbnSearchProcess
+![Vista de Processos Nivel 2](Images/STB_-_VP2-IsbnSearch.svg)
+
+#### Nivel 3 - IsbnSearch Process
+![Vista de Processos Nivel 3](Images/STB_-_VP3-IsbnSearch.svg)
+
+#### Nivel 4 - IsbnSearch Process
+![Vista de Processos Nivel 4](Images/STB_-_VP4-IsbnSearch.svg)
 ---
 
 ## Alternativas de Arquitetura para uma aplicação de Gestão de Biblioteca

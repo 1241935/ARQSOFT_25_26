@@ -37,20 +37,20 @@ Aplicando as táticas de modificabilidade e disponibilidade:
 3. **Abstrair serviços comuns** (Abstract Common Services):
     - Definir um contrato comum para todos os fornecedores de ISBN 
     - Normalizar respostas e formatos de dados (ex.: JSON → DTO comum).
-    - Implementar mecanismos de cache para evitar chamadas redundantes.
 
 4. **Adiar a vinculação** (Defer Binding):
     - Permitir configuração dinâmica das APIs ativas através de ficheiro de configuração
-
-5. **Tolerância a falhas e disponibilidade**:
-    - Implementar timeouts e circuit breakers para cada API externa.
-    - Executar chamadas em paralelo para reduzir latência total.
-    - Aplicar caching local (ex.: Redis)
 
 ## Motivação:
 Garantir que o sistema oferece respostas rápidas e precisas, mesmo diante de falhas em fornecedores externos,
 mantendo flexibilidade para incorporar novos serviços ou ajustar comportamentos através de configuração.
 
-## Alternativas:
-- Armazenar localmente um catálogo de livros sincronizado periodicamente, melhorando performance mas
-  aumentando a complexidade de manutenção e sincronização.
+## Alternativas Consideradas:
+
+- **Integração direta no Controller**: Chamar APIs externas diretamente nos controllers violaria o Single Responsibility Principle e dificultaria testes unitários da lógica de negócio.
+
+- **Biblioteca única para todas as APIs**: Usar uma biblioteca genérica que abstraísse todas as APIs seria inflexível para requisitos específicos de cada fornecedor (autenticação, rate limits, formatos).
+
+- **Catálogo local sincronizado**: Armazenar localmente um catálogo de livros melhoraria performance mas aumentaria complexidade de sincronização e custos de storage.
+
+- **API única sem fallback**: Depender de uma única API externa criaria single point of failure e comprometeria disponibilidade do sistema.

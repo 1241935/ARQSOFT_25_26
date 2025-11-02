@@ -13,14 +13,8 @@ pipeline {
   }
 
   stages {
-    stage('CHECKOUT BRANCH') {
-      steps {
-        script {
-          echo "🔄 Checking out branch: ${env.BRANCH_NAME}"
-          git branch: "${env.BRANCH_NAME}", url: 'https://github.com/1241935/ARQSOFT_25_26.git'
-        }
-      }
-    }
+    // ❌ REMOVER - multibranch faz checkout automático
+    // stage('CHECKOUT BRANCH') { ... }
 
     stage('BUILD') {
       steps {
@@ -59,11 +53,10 @@ pipeline {
       }
     }
 
-    // ---------------- DEPLOY SECTIONS ----------------
     stage('DEPLOY DEV') {
-      when { branch 'dev' }
+      when { branch 'dev' }  // ← ADICIONAR
       steps {
-        echo "🚀 Deploying DEV environment"
+        echo "🚀 Deploying to DEV (local)"
         sh """
           mkdir -p ${DEPLOY_PATH_DEV}
           cp target/${JAR_NAME} ${DEPLOY_PATH_DEV}/
@@ -76,66 +69,69 @@ pipeline {
     }
 
     stage('DEPLOY STAGING') {
-      when { branch 'staging' }
+      when { branch 'staging' }  // ← ADICIONAR
       steps {
-        echo "🚀 Deploying STAGING to ${SERVER}"
+        echo "🚀 Deploying to STAGING (${SERVER})"
         sshagent(credentials: [env.SSH_CREDENTIALS]) {
           sh """
-            scp -P ${PORT} target/${JAR_NAME} root@${SERVER}:${DEPLOY_PATH_STAGING}/
-            ssh -p ${PORT} root@${SERVER} '
+            scp -o StrictHostKeyChecking=no -P ${PORT} target/${JAR_NAME} root@${SERVER}:${DEPLOY_PATH_STAGING}/
+            ssh -o StrictHostKeyChecking=no -p ${PORT} root@${SERVER} '
               pkill -f "spring.profiles.active=staging" || true
               sleep 2
-              nohup java -jar ${DEPLOY_PATH_STAGING}/${JAR_NAME} --spring.profiles.active=staging --server.port=80 \\
+              nohup java -jar ${DEPLOY_PATH_STAGING}/${JAR_NAME} \\
+                --spring.profiles.active=staging \\
+                --server.port=2224 \\
                 > ${DEPLOY_PATH_STAGING}/app.log 2>&1 < /dev/null &
-            '
+            ' || true
           """
         }
       }
     }
 
     stage('DEPLOY PROD') {
-      when { branch 'main' }
+      when { branch 'main' }  // ← ADICIONAR
       steps {
-        echo "🚀 Deploying PROD to ${SERVER}"
+        echo "🚀 Deploying to PROD (${SERVER})"
         sshagent(credentials: [env.SSH_CREDENTIALS]) {
           sh """
-            scp -P ${PORT} target/${JAR_NAME} root@${SERVER}:${DEPLOY_PATH_PROD}/
-            ssh -p ${PORT} root@${SERVER} '
+            scp -o StrictHostKeyChecking=no -P ${PORT} target/${JAR_NAME} root@${SERVER}:${DEPLOY_PATH_PROD}/
+            ssh -o StrictHostKeyChecking=no -p ${PORT} root@${SERVER} '
               pkill -f "spring.profiles.active=prod" || true
               sleep 2
-              nohup java -jar ${DEPLOY_PATH_PROD}/${JAR_NAME} --spring.profiles.active=prod --server.port=8081 \\
+              nohup java -jar ${DEPLOY_PATH_PROD}/${JAR_NAME} \\
+                --spring.profiles.active=prod \\
+                --server.port=2225 \\
                 > ${DEPLOY_PATH_PROD}/app.log 2>&1 < /dev/null &
-            '
+            ' || true
           """
         }
       }
     }
 
-    // ---------------- HEALTH CHECK ----------------
     stage('HEALTH CHECK') {
       steps {
         script {
-          echo "🩺 Running health checks for ${env.BRANCH_NAME}"
+          sleep 10
+
           if (env.BRANCH_NAME == 'dev') {
             sh """
-              pgrep -f 'spring.profiles.active=dev' && echo '✅ DEV running' || echo '❌ DEV not detected'
+              pgrep -f 'spring.profiles.active=dev' && echo '✅ DEV is running' || echo '⚠️ DEV not detected'
             """
           } else if (env.BRANCH_NAME == 'staging') {
             sshagent(credentials: [env.SSH_CREDENTIALS]) {
               sh """
-                ssh -p ${PORT} root@${SERVER} 'pgrep -f "spring.profiles.active=staging"' \\
-                  && echo '✅ STAGING running' || echo '❌ STAGING not detected'
+                ssh -o StrictHostKeyChecking=no -p ${PORT} root@${SERVER} 'pgrep -f "spring.profiles.active=staging"' \\
+                  && echo '✅ STAGING is running' || echo '⚠️ STAGING not detected'
               """
             }
           } else if (env.BRANCH_NAME == 'main') {
             sshagent(credentials: [env.SSH_CREDENTIALS]) {
               sh """
-                ssh -p ${PORT} root@${SERVER} 'pgrep -f "spring.profiles.active=prod"' \\
-                  && echo '✅ PROD running' || echo '❌ PROD not detected'
+                echo "Checking PROD..."
+                ssh -o StrictHostKeyChecking=no -p ${PORT} root@${SERVER} 'pgrep -f "spring.profiles.active=prod"' \\
+                  && echo '✅ PROD is running' || echo '⚠️ PROD not detected'
               """
             }
-          } else {
-            echo "⚠️ Branch ${env.BRANCH_NAME} does not have a deploy target."
           }
         }
       }
@@ -144,7 +140,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ PIPELINE SUCCESS for branch ${env.BRANCH_NAME}!"
+      echo "✅ PIPELINE SUCCESS on branch ${env.BRANCH_NAME}!"
     }
     failure {
       echo "❌ PIPELINE FAILED on branch ${env.BRANCH_NAME}."

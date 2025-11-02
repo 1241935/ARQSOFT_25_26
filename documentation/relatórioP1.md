@@ -253,3 +253,56 @@ Esta separação permite maior organização do código, facilita a manutenção
 
 #### Package Diagram
 ![Package Diagram MVC](Images/Alternative_packageDiagram.png)
+
+---
+## Automated Tests
+### Unit Tests
+### Caixa Opaca
+
+```java
+@Test
+@DisplayName("Should return correct author for valid number")
+void testFindByAuthorNumber_CorrectAuthor() {
+Optional<Author> result = authorRepository.findByAuthorNumber(
+testAuthor.getAuthorNumber());
+
+            assertTrue(result.isPresent());
+            assertEquals(testAuthor.getAuthorNumber(), result.get().getAuthorNumber());
+            assertEquals(AUTHOR_NAME, result.get().getName());
+            assertEquals(AUTHOR_BIO, result.get().getBio());
+        }
+```
+### Caixa Transparente - Domain Model
+```java
+@Test
+    void whenApplyPatchWithValidVersionAndTitle_thenTitleIsUpdated() {
+        // Arrange
+        String pk = "1";
+        String isbn = "9782826012092";
+        String title = "Original Title";
+        String description = "Book Description";
+        String photoURI = "http://example.com/book.jpg";
+
+        Genre genreDouble = mock(Genre.class);
+        Author authorDouble = mock(Author.class);
+        List<Author> authors = new ArrayList<>();
+        authors.add(authorDouble);
+
+        Book book = new Book(pk, isbn, title, description, genreDouble, authors, photoURI);
+
+        UpdateBookRequest request = mock(UpdateBookRequest.class);
+        when(request.getTitle()).thenReturn("New Title");
+        when(request.getDescription()).thenReturn(null);
+        when(request.getGenreObj()).thenReturn(null);
+        when(request.getAuthorObjList()).thenReturn(null);
+        when(request.getPhotoURI()).thenReturn(null);
+
+        Long currentVersion = book.getVersion();
+
+        // Act
+        book.applyPatch(currentVersion, request);
+
+        // Assert
+        assertEquals("New Title", book.getTitle().toString());
+    }
+```

@@ -13,9 +13,6 @@ pipeline {
   }
 
   stages {
-    // ❌ REMOVER - multibranch faz checkout automático
-    // stage('CHECKOUT BRANCH') { ... }
-
     stage('BUILD') {
       steps {
         sh 'mvn clean compile'
@@ -54,7 +51,7 @@ pipeline {
     }
 
     stage('DEPLOY DEV') {
-      when { branch 'dev' }  // ← ADICIONAR
+      when { branch 'dev' }
       steps {
         echo "🚀 Deploying to DEV (local)"
         sh """
@@ -69,7 +66,7 @@ pipeline {
     }
 
     stage('DEPLOY STAGING') {
-      when { branch 'staging' }  // ← ADICIONAR
+      when { branch 'staging' }
       steps {
         echo "🚀 Deploying to STAGING (${SERVER})"
         sshagent(credentials: [env.SSH_CREDENTIALS]) {
@@ -89,7 +86,7 @@ pipeline {
     }
 
     stage('DEPLOY PROD') {
-      when { branch 'main' }  // ← ADICIONAR
+      when { branch 'main' }
       steps {
         echo "🚀 Deploying to PROD (${SERVER})"
         sshagent(credentials: [env.SSH_CREDENTIALS]) {

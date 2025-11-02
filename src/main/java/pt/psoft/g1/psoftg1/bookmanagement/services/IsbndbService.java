@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-@Primary
 public class IsbndbService implements LibraryApi {
 
     private static final String API_URL = "https://api2.isbndb.com/books/{title}";

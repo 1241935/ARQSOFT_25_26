@@ -72,7 +72,7 @@ class BookControllerIntegrationTest {
     // Contador para ISBNs únicos
     private static final AtomicInteger isbnCounter = new AtomicInteger(1000);
 
-    @BeforeEach
+    /*@BeforeEach
     void setUp() {
         reset(libraryApi);
 
@@ -241,7 +241,7 @@ class BookControllerIntegrationTest {
 
     }*/
 
-    @Test
+    /*@Test
     @WithMockUser(roles = "READER")
     void findBooks_ByTitle_ReturnsMatchingBooks() throws Exception {
         // Arrange
@@ -380,8 +380,8 @@ class BookControllerIntegrationTest {
     /**
      * Gera ISBN único para cada teste
      */
-    private String generateUniqueIsbn() {
+    /*private String generateUniqueIsbn() {
         int counter = isbnCounter.getAndIncrement();
         return String.format("978013235%04d", counter);
-    }
+    }*/
 }

@@ -7,7 +7,7 @@ Necessidade de criar um sistema que suporte múltiplos sistemas de gerencia de b
 Implementar uma arquitetura que permita a troca de SGBDs através de configurações, utilizando táticas de modificabilidade para garantir flexibilidade e manutenibilidade do sistema.
 
 ## Resumo da solução:
-Desenvolver uma camada de abstração de banco de dados altamente configurável, aplicando táticas específicas de modificabilidade para garantir a independência entre a lógica de negócios e a implementação do banco de dados.
+Desenvolver uma camada de abstração da base de dados altamente configurável, aplicando táticas específicas de modificabilidade para garantir a independência entre a lógica de negócios e a implementação do banco de dados.
 
 ## Fatores críticos:
 - Diferentes clientes possuem SGBDs já estabelecidos nas suas infraestruturas

@@ -30,10 +30,18 @@ Aplicando as táticas de modificabilidade:
 
 3. **Abstrair serviços comuns** (Abstract Common Services):
     - Definir interface comum para todos os geradores de ID
-    - Permitir implementações específicas como Hash e Hexadecimal
+    - Permitir implementações específicas como Base65 e Hexadecimal
     - Padronizar o contrato de geração de IDs
 
 4. **Adiar a vinculação** (Defer Binding):
     - Utilizar configurações externas para selecionar o método de geração
     - Permitir alteração do método sem modificar o código
     - Suportar configuração via propriedades ou variáveis de ambiente
+
+## Alternativas Consideradas
+
+Antes de adotar a solução baseada em táticas de modificabilidade com Strategy Pattern e Factories, foram analisadas outras abordagens para a geração de IDs. Cada alternativa apresentava trade-offs entre simplicidade, flexibilidade e acoplamento que influenciaram a decisão final:
+
+- **Geração de IDs diretamente nas entidades de domínio**: Esta abordagem violaria os princípios de Clean Architecture ao introduzir dependências de infraestrutura no domínio, comprometendo a testabilidade e reutilização das entidades Book e Genre em diferentes contextos.
+
+- **Service dedicado centralizado (IdGeneratorService único)**: Um único serviço com lógica condicional (if/else ou switch) para escolher o formato violaria o Open/Closed Principle, exigindo modificação do código a cada nova estratégia adicionada e aumentando a complexidade ciclomática.

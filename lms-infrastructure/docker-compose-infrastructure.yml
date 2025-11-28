@@ -1,0 +1,87 @@
+services:
+  # ------------------------------------------------
+  # 1. AUTHORS DATABASE (Mapped to Port 5432)
+  # ------------------------------------------------
+  postgres-authors:
+    image: postgres:16
+    container_name: db_authors
+    restart: unless-stopped
+    ports:
+      - "5432:5432"  # Host Port 5432 -> Container Port 5432
+    environment:
+      POSTGRES_DB: authors_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - vol_authors:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ------------------------------------------------
+  # 2. BOOKS INSTANCE 1 DATABASE (Mapped to Port 5433)
+  # ------------------------------------------------
+  postgres-books-1:
+    image: postgres:16
+    container_name: db_books_1
+    restart: unless-stopped
+    ports:
+      - "5433:5432"  # <--- CRITICAL: Host Port 5433 -> Container Port 5432
+    environment:
+      POSTGRES_DB: books_1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - vol_books_1:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ------------------------------------------------
+  # 3. BOOKS INSTANCE 2 DATABASE (Mapped to Port 5434)
+  # ------------------------------------------------
+#  postgres-books-2:
+#    image: postgres:16
+#    container_name: db_books_2
+#    restart: unless-stopped
+#    ports:
+#      - "5434:5432"  # <--- CRITICAL: Host Port 5434 -> Container Port 5432
+#    environment:
+#      POSTGRES_DB: books_2
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: password
+#    volumes:
+#      - vol_books_2:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U postgres"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+
+  # ------------------------------------------------
+  # 4. RABBITMQ (Mapped to Port 5672)
+  # ------------------------------------------------
+  global-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: global_rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+# Define unique volumes so data doesn't mix
+volumes:
+  vol_authors:
+  vol_books_1:
+  vol_books_2:
+
+networks:
+  default:
+    name: lms_network

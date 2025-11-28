@@ -1,0 +1,257 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_BRANCH = "main"
+        GIT_REPO_URL = "https://github.com/1211118/ODSOFT_1211111_1211118.git"
+        IMAGE_NAME = "books:server"
+        REPO_NAME = "1211118/books"
+        CONTAINER_NAME = "books-server"
+        JAR_PATH = "target/LMSUsers-0.0.1-SNAPSHOT.jar"
+        HOST_PORT = "2226"
+        CONTAINER_PORT = "2226"
+        DOCKER_CREDENTIALS_ID = "docker-hub-credentials-server"
+        BACKUP_IMAGE_NAME = "books-backup:server"
+    }
+
+    tools {
+        jdk 'JDK 21'
+        maven 'Maven'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Checking out the repository...'
+                // Faz o checkout do repositório Git na branch especificada usando as credenciais
+                git credentialsId: 'Password_for_Github_Project', url: "${GIT_REPO_URL}", branch: "${GIT_BRANCH}"
+                echo 'Repository checked out successfully.'
+            }
+        }
+
+        stage('Check for Changes in books') {
+            steps {
+                script {
+                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                    if (changes.contains('P2/lms-microservices/books')) {
+                        echo "Changes detected in books. Proceeding with pipeline..."
+                    } else {
+                        echo "No changes detected in books. Skipping pipeline."
+                        currentBuild.result = 'SUCCESS'
+                        return
+                    }
+                }
+            }
+        }
+
+        stage('Stop and Remove Container') {
+            steps {
+                echo "Stopping and removing container..."
+                sh '''
+                docker stop ${CONTAINER_NAME} || true
+                docker rm ${CONTAINER_NAME} || true
+                '''
+            }
+        }
+
+        stage('Build JAR') {
+            steps {
+                echo "Building JAR file..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        dir('P2/lms-microservices/books') {
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker image..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh '''
+                        # Desabilitar o BuildKit para evitar problemas de permissões
+                        export DOCKER_BUILDKIT=0
+
+                        docker build -t ${IMAGE_NAME} P2/lms-microservices/books
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Backup Current Image') {
+            steps {
+                echo "Backing up current Docker image..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """
+                        docker tag ${IMAGE_NAME} ${BACKUP_IMAGE_NAME}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                echo "Pushing Docker image to Docker Hub..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            sh '''
+                            echo "Logging in to Docker Hub..."
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin || { echo "Docker login failed. Check username/password." && exit 1; }
+
+                            echo "Tagging the image..."
+                            docker tag ${IMAGE_NAME} ${REPO_NAME}:latest
+
+                            echo "Pushing the image..."
+                            docker push ${REPO_NAME}:latest || { echo "Docker push failed. Check permissions." && exit 1; }
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        stage('Notify User for Approval') {
+            steps {
+                emailext (
+                    subject: "Books Jenkins Server Pipeline - Deployment Ready",
+                    body: """The books jenkins server pipeline has successfully built and pushed the Docker image.
+                            Please approve the deployment in Jenkins to continue.""",
+                    to: '1211118@isep.ipp.pt'
+                )
+            }
+        }
+
+        stage('Wait for Approval') {
+            steps {
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        echo "The pipeline is waiting for your approval. Please click on the link below to proceed or abort the deployment."
+                        def userInput = input(
+                            message: "Do you want to proceed with the deployment?", 
+                            parameters: [
+                                choice(name: 'Approve Deployment', choices: ['Yes', 'No'], description: 'Select Yes to continue or No to abort.')
+                            ]
+                        )
+                        if (userInput == 'No') {
+                            currentBuild.result = 'ABORTED'
+                            error("Deployment aborted by user.")
+
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                echo "Running container ..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """
+                        docker run --name ${CONTAINER_NAME} --privileged --security-opt seccomp=unconfined --security-opt label=disable -d -p ${HOST_PORT}:${CONTAINER_PORT} ${IMAGE_NAME}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Scale Up and Down Services') {
+            steps {
+                echo "Scaling services ..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                       
+                        sh """
+                        for i in {1..3}; do
+                            docker run --name ${CONTAINER_NAME}_\$i -d -p \$((${HOST_PORT} + \$i)):${CONTAINER_PORT} ${IMAGE_NAME}
+                        done
+
+                        for i in {1..3}; do
+                            docker stop ${CONTAINER_NAME}_\$i
+                            docker rm ${CONTAINER_NAME}_\$i
+                        done
+                        """
+
+                    }
+                }
+            }
+        }
+
+        stage('Check Container Logs') {
+            steps {
+                echo "Checking container logs..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh """
+                        docker logs ${CONTAINER_NAME}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Run Container Tests') {
+            steps {
+                echo "Waiting for the container to initialize..."
+                sh "sleep 10"
+
+                echo "Running tests against the container..."
+                script {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sh '''
+                        set +e
+                        curl -X GET http://localhost:${HOST_PORT}/actuator/health -o health_check_output.txt
+                        echo Health endpoint response:
+                        cat health_check_output.txt
+                        set -e
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Rollback If Pipeline Fails') {
+            steps {
+                script {
+                    if (currentBuild.result == 'FAILURE' || currentBuild.result == 'ABORTED') {
+                        echo "Pipeline failed. Rolling back..."
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            sh """
+                            docker stop ${CONTAINER_NAME} || true
+                            docker rm ${CONTAINER_NAME} || true
+                            docker run --name ${CONTAINER_NAME} -d -p ${HOST_PORT}:${CONTAINER_PORT} ${BACKUP_IMAGE_NAME}
+                            """
+                            echo "Rollback complete. Container is now running with backup image."
+                        }
+                    } else {
+                        echo "Pipeline was successful, no need for rollback."
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Cleaning up workspace to avoid memory issues..."
+            cleanWs()
+        }
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check the logs."
+        }
+    }
+}

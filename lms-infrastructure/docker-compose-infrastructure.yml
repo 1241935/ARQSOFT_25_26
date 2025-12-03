@@ -63,7 +63,27 @@ services:
 #      retries: 5
 
   # ------------------------------------------------
-  # 4. RABBITMQ (Mapped to Port 5672)
+  # 4. AUTHNUSER DATABASE (Mapped to Port 5435) <--- NEW
+  # ------------------------------------------------
+  postgres-authnuser:
+    image: postgres:16
+    container_name: db_authnuser
+    restart: unless-stopped
+    ports:
+      - "5435:5432"  # Host Port 5435 -> Container Port 5432
+    environment:
+      POSTGRES_DB: users_1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - vol_authnuser:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  # ------------------------------------------------
+  # 5. RABBITMQ (Mapped to Port 5672)
   # ------------------------------------------------
   global-rabbitmq:
     image: rabbitmq:3-management
@@ -81,6 +101,7 @@ volumes:
   vol_authors:
   vol_books_1:
   vol_books_2:
+  vol_authnuser:
 
 networks:
   default:

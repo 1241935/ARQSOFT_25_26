@@ -1,0 +1,12 @@
+# Cenário de Atributo de Qualidade 4 - Criação de Book, Author e Genre no mesmo processo
+
+| **Elemento**  | **Declaração** |
+|--------------|---------------|
+| **Atributo de Qualidade** | Usability |
+| **Estímulo** | O sistema precisa permitir que o bibliotecário possa criar um Livro, Autor e Género num único processo. |
+| **Fonte do Estímulo** | Necessidade de uma solução prática e eficiente que centralize e agilize a entrada de dados, evitando o esforço manual repetitivo e inconsistências. |
+| **Ambiente** | O sistema opera num ambiente de biblioteca com carga de trabalho intensa e múltiplos acessos simultâneos, exigindo respostas rápidas e um fluxo de trabalho fluido para os bibliotecários. |
+| **Artefato** | O módulo de gestão de livros (microserviço), responsável por realizar a criação de livros, autores e géneros no sistema. |
+| **Resposta** | O sistema deve permitir a criação integrada de Livro, Autor e Gênero numa única operação, exibindo feedback claro e reduzindo etapas redundantes, garantindo a consistência dos dados cadastrados. Na eventualidade da ocorrência de erros, nenhuma das entidades deve ser criada. |
+| **Medição da Resposta** | 1. O processo completo deve ser concluído em até 2 minutos.|
+| **Medição da Resposta** | 2. Os dados sevem ser criados corretamente em 99% das operações. |

@@ -1,0 +1,47 @@
+@startuml
+skinparam style strictuml
+skinparam sequenceMessageAlign center
+
+actor "Librarian" as L
+participant "Books Service" as B << (C,#ADD1B2) >>
+database "BD1" as DB
+queue "MB Broker" as Broker
+
+title Processo de Books: Auto-Subscrição e Fluxo de Criação
+
+== Fase de Inicialização (Startup) ==
+
+note over B, Broker : O Books Service regista-se para ouvir eventos\nque ele próprio (ou outros) venham a emitir.
+B -> Broker : Subscribe ("BookCreated")
+activate Broker
+Broker --> B : Subscription OK
+deactivate Broker
+
+== Fluxo de Negócio (Runtime) ==
+
+L -> B : POST /catalog\n{title, author, genre}
+activate B
+
+group Transação Atómica [BD1]
+    B -> DB : Verificar/Inserir Autor
+    DB --> B : AuthorID
+
+    B -> DB : Verificar/Inserir Género
+    DB --> B : GenreID
+
+    B -> DB : Inserir Livro (AuthorID, GenreID)
+    DB --> B : Success
+end
+
+B -> DB : Commit Transaction
+
+B -> Broker : Publicar Evento "BookCreated"
+activate Broker
+Broker --> B : Ack (Recebido)
+deactivate Broker
+
+B --> L : 201 Created (Success)
+deactivate B
+
+
+@enduml

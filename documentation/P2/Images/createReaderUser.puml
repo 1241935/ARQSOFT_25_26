@@ -1,0 +1,46 @@
+@startuml
+title Create Reader and User - Saga Event-Driven Flow
+
+participant "Librarian" as client
+participant "LendingsNReaders Service" as lnr
+participant "AuthNUsers Service" as auth
+participant "Message Broker" as mb
+
+== Service Initialization ==
+lnr -> mb: Subscribe to "reader.created", "user.created"
+auth -> mb: Subscribe to "readerWithUser.created"
+activate mb
+
+== Creation Flow ==
+[-> client: Create Reader and User (POST)
+activate client
+
+client -> lnr: Create Reader (POST with User data)
+activate lnr
+
+note right of lnr: Create Reader (Status: PENDING)
+lnr -> mb: publish "readerWithUser.created" \n(with reader and user data)
+lnr -> mb: publish "reader.created"
+
+lnr --> client: 202 Accepted
+deactivate client
+
+' O serviço de Books (aqui LNR) ouve o seu próprio evento se necessário
+mb -> lnr : notify "reader.created"
+
+' O serviço de Auth reage ao evento para criar o User
+mb -> auth: notify "readerWithUser.created"
+activate auth
+auth -> auth: Create User/Credentials
+auth -> mb: publish "user.created"
+deactivate auth
+
+' O LNR recebe a confirmação que o User foi criado para finalizar a Saga
+mb -> lnr: notify "user.created"
+activate lnr
+lnr -> lnr: Update Reader Status to ACTIVE
+deactivate lnr
+
+deactivate mb
+
+@enduml
